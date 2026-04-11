@@ -1,132 +1,81 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { DimYear, DimArea, DimAnslag, DimParty, FactBudget, DisplayMode, DrillLevel } from './supabase-types';
+import type { DimYear, DimArea, DimParty, FactBudget, DisplayMode } from './supabase-types';
+
+// The tables exist in the DB but aren't in the auto-generated types yet.
+// We cast to any for .from() calls and type the results manually.
+const db = supabase as any;
 
 export async function getYears(): Promise<DimYear[]> {
-  const { data, error } = await supabase
-    .from('dim_year')
-    .select('*')
-    .order('year_id', { ascending: true });
+  const { data, error } = await db.from('dim_year').select('*').order('year_id', { ascending: true });
   if (error) throw error;
   return data as DimYear[];
 }
 
 export async function getAreas(): Promise<DimArea[]> {
-  const { data, error } = await supabase
-    .from('dim_area')
-    .select('*')
-    .order('sort_order', { ascending: true });
+  const { data, error } = await db.from('dim_area').select('*').order('sort_order', { ascending: true });
   if (error) throw error;
   return data as DimArea[];
 }
 
 export async function getParties(): Promise<DimParty[]> {
-  const { data, error } = await supabase
-    .from('dim_party')
-    .select('*')
-    .order('party_id', { ascending: true });
+  const { data, error } = await db.from('dim_party').select('*').order('party_id', { ascending: true });
   if (error) throw error;
   return data as DimParty[];
 }
 
 export async function getBudgetByYear(
   year: number,
-  level: DrillLevel = 'area',
+  level: 'area' | 'anslag' = 'area',
   areaId?: number
 ): Promise<FactBudget[]> {
-  let query = supabase
-    .from('fact_budget')
-    .select('*')
-    .eq('year_id', year)
-    .eq('is_revenue', false);
-
+  let query = db.from('fact_budget').select('*').eq('year_id', year).eq('is_revenue', false);
   if (level === 'area') {
     query = query.is('anslag_id', null);
   } else if (areaId) {
     query = query.eq('area_id', areaId).not('anslag_id', 'is', null);
   }
-
   const { data, error } = await query;
   if (error) throw error;
   return data as FactBudget[];
 }
 
-export async function getAreaTimeSeries(
-  areaId: number,
-  yearFrom: number,
-  yearTo: number
-): Promise<FactBudget[]> {
-  const { data, error } = await supabase
-    .from('fact_budget')
-    .select('*')
-    .eq('area_id', areaId)
-    .is('anslag_id', null)
-    .eq('is_revenue', false)
-    .gte('year_id', yearFrom)
-    .lte('year_id', yearTo)
-    .order('year_id', { ascending: true });
+export async function getAreaTimeSeries(areaId: number, yearFrom: number, yearTo: number): Promise<FactBudget[]> {
+  const { data, error } = await db.from('fact_budget').select('*')
+    .eq('area_id', areaId).is('anslag_id', null).eq('is_revenue', false)
+    .gte('year_id', yearFrom).lte('year_id', yearTo).order('year_id', { ascending: true });
   if (error) throw error;
   return data as FactBudget[];
 }
 
-export async function getAllTimeSeries(
-  yearFrom: number,
-  yearTo: number
-): Promise<FactBudget[]> {
-  const { data, error } = await supabase
-    .from('fact_budget')
-    .select('*')
-    .is('anslag_id', null)
-    .eq('is_revenue', false)
-    .gte('year_id', yearFrom)
-    .lte('year_id', yearTo)
-    .order('year_id', { ascending: true });
+export async function getAllTimeSeries(yearFrom: number, yearTo: number): Promise<FactBudget[]> {
+  const { data, error } = await db.from('fact_budget').select('*')
+    .is('anslag_id', null).eq('is_revenue', false)
+    .gte('year_id', yearFrom).lte('year_id', yearTo).order('year_id', { ascending: true });
   if (error) throw error;
   return data as FactBudget[];
 }
 
-export async function getPartyComparison(
-  year: number,
-  partyIds: number[]
-): Promise<FactBudget[]> {
-  const { data, error } = await supabase
-    .from('fact_budget')
-    .select('*')
-    .eq('year_id', year)
-    .is('anslag_id', null)
-    .eq('is_revenue', false)
-    .in('party_id', partyIds);
+export async function getPartyComparison(year: number, partyIds: number[]): Promise<FactBudget[]> {
+  const { data, error } = await db.from('fact_budget').select('*')
+    .eq('year_id', year).is('anslag_id', null).eq('is_revenue', false).in('party_id', partyIds);
   if (error) throw error;
   return data as FactBudget[];
 }
 
 export async function getHistoricalSnapshot(year: number): Promise<FactBudget[]> {
-  const { data, error } = await supabase
-    .from('fact_budget')
-    .select('*')
-    .eq('year_id', year)
-    .is('anslag_id', null)
-    .eq('is_revenue', false);
+  const { data, error } = await db.from('fact_budget').select('*')
+    .eq('year_id', year).is('anslag_id', null).eq('is_revenue', false);
   if (error) throw error;
   return data as FactBudget[];
 }
 
-export function convertAmount(
-  amount: number,
-  mode: DisplayMode,
-  yearData: DimYear,
-  totalForYear?: number
-): number {
+export function convertAmount(amount: number, mode: DisplayMode, yearData: DimYear, totalForYear?: number): number {
   switch (mode) {
-    case 'nominal':
-      return amount;
-    case 'real':
-      return yearData.cpi_index ? amount / yearData.cpi_index * 100 : amount;
-    case 'gdp_pct':
-      return yearData.gdp_nominal_sek ? (amount / yearData.gdp_nominal_sek) * 100 : 0;
-    case 'total_pct':
-      return totalForYear ? (amount / totalForYear) * 100 : 0;
-    default:
-      return amount;
+    case 'nominal': return amount;
+    case 'real': return yearData.cpi_index ? amount / yearData.cpi_index * 100 : amount;
+    case 'gdp_pct': return yearData.gdp_nominal_sek ? (amount / yearData.gdp_nominal_sek) * 100 : 0;
+    case 'total_pct': return totalForYear ? (amount / totalForYear) * 100 : 0;
+    default: return amount;
   }
 }
 
@@ -140,7 +89,6 @@ export function formatAmount(value: number, mode: DisplayMode): string {
     case 'gdp_pct':
     case 'total_pct':
       return `${value.toFixed(1)}%`;
-    default:
-      return value.toString();
+    default: return value.toString();
   }
 }
