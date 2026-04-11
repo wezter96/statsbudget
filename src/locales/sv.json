@@ -1,0 +1,89 @@
+{
+  "site": {
+    "title": "Budgetkoll",
+    "tagline": "Så används dina skattekronor",
+    "description": "Följ den svenska statsbudgeten från 1975 till idag. Jämför partiernas förslag. Förstå vart pengarna går."
+  },
+  "hero": {
+    "heading": "Så används dina skattekronor",
+    "subheading": "Följ den svenska statsbudgeten från 1975 till idag. Jämför partiernas förslag. Förstå vart pengarna går.",
+    "lastUpdated": "Senast uppdaterad: {{date}}",
+    "sources": "Källor: ESV · SCB · Riksdagen",
+    "explore": "↓ Utforska budgeten"
+  },
+  "explorer": {
+    "year": "År",
+    "mode": {
+      "total_pct": "% av total",
+      "real": "Reala kronor",
+      "nominal": "Nominella kronor",
+      "gdp_pct": "% av BNP"
+    },
+    "partyComparison": "Jämför partier",
+    "yearRange": "Tidsperiod",
+    "filter": "Filter",
+    "drillDown": "Hela budgeten",
+    "source": "Källa: ESV",
+    "noData": "Ingen data tillgänglig för valt år.",
+    "amount": "Belopp",
+    "share": "Andel",
+    "change": "Förändring"
+  },
+  "historical": {
+    "heading": "Så såg den svenska budgeten ut för 50 år sedan",
+    "intro": "En tillbakablick på hur svenska statens utgifter fördelades under 1970- och 1980-talet.",
+    "source": "Källa",
+    "placeholder": "Redaktionell text om det politiska och ekonomiska läget detta år kommer att läggas till."
+  },
+  "about": {
+    "heading": "Om Budgetkoll",
+    "project": {
+      "title": "Om projektet",
+      "text": "Budgetkoll är ett medborgarverktyg som gör den svenska statsbudgeten tillgänglig och begriplig för alla. Projektet drivs ideellt med målet att stärka den demokratiska transparensen."
+    },
+    "sources": {
+      "title": "Datakällor",
+      "esv": "Ekonomistyrningsverket (ESV) — utfall och anslagsnivåer",
+      "scb": "Statistiska centralbyrån (SCB) — KPI och BNP",
+      "riksdagen": "Riksdagen — propositioner och partiernas motioner"
+    },
+    "method": {
+      "title": "Metod",
+      "text": "Budgetdata struktureras i ett stjärnschema med dimensioner för år, utgiftsområde, anslag och parti. Inflationsjustering görs med KPI-index (basår 2026). Partiernas skuggbudgetar extraheras via AI-extraktion från motioner, stickprovskontrollerad — fel kan förekomma."
+    },
+    "limitations": {
+      "title": "Begränsningar",
+      "text": "Kända begränsningar inkluderar: asymmetrisk granularitet mellan utfall och skuggbudgetar, historisk gleshet i data före 2000, samt att partiernas motioner inte alltid specificerar anslag på samma detaljnivå som regeringens budget."
+    },
+    "openData": {
+      "title": "Öppen data",
+      "text": "All data finns tillgänglig i vårt öppna GitHub-repo:"
+    },
+    "reportError": {
+      "title": "Rapportera fel",
+      "text": "Hittat ett fel eller har en fråga? Kontakta oss:"
+    }
+  },
+  "nav": {
+    "explorer": "Utforska",
+    "historical": "Historiskt",
+    "about": "Om"
+  },
+  "footer": {
+    "about": "Om",
+    "data": "Data",
+    "reportError": "Rapportera fel",
+    "sources": "Källor: ESV · SCB · Riksdagen",
+    "lastUpdated": "Senast uppdaterad: {{date}}"
+  },
+  "error": {
+    "generic": "Något gick fel. Försök igen om en stund.",
+    "retry": "Försök igen"
+  },
+  "a11y": {
+    "skipToContent": "Hoppa till innehåll"
+  },
+  "tooltip": {
+    "utgiftsomrade": "Utgiftsområde — en av riksdagens cirka 27 kategorier för statens utgifter."
+  }
+}
