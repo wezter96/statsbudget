@@ -64,7 +64,7 @@ const TimeSeriesChart = ({ series, mode, yearFrom, yearTo }: TimeSeriesChartProp
     } : {}),
   }));
 
-  const option: echarts.EChartsOption = {
+  const option: echarts.EChartsCoreOption = {
     tooltip: {
       trigger: 'axis',
       formatter: (params: any) => {

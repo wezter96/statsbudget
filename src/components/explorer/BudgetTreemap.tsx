@@ -38,7 +38,7 @@ const BudgetTreemap = ({ data, mode, onAreaClick, selectedAreaId }: BudgetTreema
     },
   }));
 
-  const option: echarts.EChartsOption = {
+  const option: echarts.EChartsCoreOption = {
     tooltip: {
       formatter: (params: any) => {
         return `<div style="font-family: Inter, sans-serif; font-size: 13px;">

@@ -37,7 +37,7 @@ const DeltaBarChart = ({ data, mode }: DeltaBarChartProps) => {
     itemStyle: { color: party.color_hex, borderRadius: [4, 4, 0, 0] },
   }));
 
-  const option: echarts.EChartsOption = {
+  const option: echarts.EChartsCoreOption = {
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
