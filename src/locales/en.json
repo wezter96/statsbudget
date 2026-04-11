@@ -1,0 +1,135 @@
+{
+  "site": {
+    "title": "Statsbudget",
+    "tagline": "Where your tax money goes",
+    "description": "An independent visualization of the Swedish state budget. Based on official data from ESV, SCB and the Riksdag."
+  },
+  "hero": {
+    "heading": "Where your tax money goes",
+    "subheading": "Follow the Swedish state budget from 1975 to today. Understand where the money goes.",
+    "lastUpdated": "Last updated: {{date}}",
+    "sources": "Sources: ESV · SCB · the Riksdag"
+  },
+  "explorer": {
+    "year": "Year",
+    "mode": {
+      "total_pct": "% of total",
+      "real": "Real kronor",
+      "nominal": "Nominal kronor",
+      "gdp_pct": "% of GDP"
+    },
+    "partyComparison": "Compare parties",
+    "yearRange": "Time range",
+    "filter": "Filter",
+    "drillDown": "Full budget",
+    "source": "Source: ESV",
+    "noData": "No data available for the selected year.",
+    "amount": "Amount",
+    "share": "Share",
+    "change": "Change",
+    "totalBudget": "Total budget",
+    "distribution": "Distribution",
+    "overTime": "Over time",
+    "partyDisclaimer": "DEMO DATA · Party shadow budgets are currently fabricated test numbers to show what this feature will look like. Real numbers are extracted from Riksdag motions via AI and will arrive in a later release. Do not trust these amounts.",
+    "verifyAt": "Verify at the Riksdag:",
+    "budgetProposition": "Budget bill",
+    "financeCommittee": "Finance Committee",
+    "table": {
+      "area": "Expenditure area"
+    },
+    "anslag": {
+      "heading": "Appropriations within {{area}}",
+      "loading": "Loading appropriations…",
+      "empty": "No appropriations to show."
+    }
+  },
+  "historical": {
+    "heading": "What the Swedish budget looked like 50 years ago",
+    "intro": "A look back at how the Swedish state allocated its spending during the 1970s and 1980s.",
+    "source": "Source",
+    "placeholder": "Editorial text on the political and economic context of this year will be added.",
+    "today": "For comparison",
+    "todayHeading": "The state budget today"
+  },
+  "about": {
+    "heading": "About Statsbudget",
+    "project": {
+      "title": "About the project",
+      "text": "Statsbudget is a civic tool that makes the Swedish state budget accessible and understandable to everyone. The project is run non-commercially with the goal of strengthening democratic transparency."
+    },
+    "sources": {
+      "title": "Data sources",
+      "esv": "Ekonomistyrningsverket (ESV) — expenditure outcomes and appropriation levels",
+      "scb": "Statistics Sweden (SCB) — CPI and GDP",
+      "riksdagen": "the Riksdag — government bills and party budget motions"
+    },
+    "method": {
+      "title": "Method",
+      "text": "Budget data is structured in a star schema with dimensions for year, expenditure area, appropriation, and party. Inflation adjustment uses the CPI index. Party shadow budgets are extracted from motions with AI assistance and sample-verified — errors may occur."
+    },
+    "limitations": {
+      "title": "Limitations",
+      "text": "Known limitations include: asymmetric granularity between outcomes and shadow budgets, historical sparsity before 2000, and the fact that party motions do not always specify appropriations at the same level of detail as the government proposal."
+    },
+    "openData": {
+      "title": "Open data",
+      "text": "All data is available in our open GitHub repo:"
+    },
+    "reportError": {
+      "title": "Report an error",
+      "text": "Found a mistake or have a question? Send us a report and we'll take a look:"
+    }
+  },
+  "nav": {
+    "explorer": "Explore",
+    "historical": "Historical",
+    "about": "About"
+  },
+  "footer": {
+    "tagline": "An independent visualization of the Swedish state budget. Based on official data from ESV, SCB and the Riksdag.",
+    "copyright": "© {{year}} statsbudget.se — Data from ESV, SCB and the Riksdag",
+    "disclaimer": "The website is provided as-is. No responsibility is taken for the accuracy, completeness, or timeliness of the information. Official records at ESV, SCB and the Riksdag prevail.",
+    "about": "About the project",
+    "sourcesLink": "Data sources",
+    "reportError": "Report an error",
+    "language": "Language"
+  },
+  "error": {
+    "generic": "Something went wrong. Please try again in a moment.",
+    "retry": "Try again"
+  },
+  "a11y": {
+    "skipToContent": "Skip to content"
+  },
+  "tooltip": {
+    "utgiftsomrade": "Expenditure area — one of the Riksdag's ~27 categories for state spending."
+  },
+  "banner": {
+    "aria": "Information about data sources",
+    "heading": "Built with AI.",
+    "body": "Data is sourced from ESV, SCB and the Riksdag but has been processed and structured with AI assistance. Individual numbers may contain errors.",
+    "cta": "Report an error here",
+    "dismiss": "Close"
+  },
+  "chat": {
+    "title": "Ask Statsbudget",
+    "trigger": "Open AI chat",
+    "placeholder": "Ask about the state budget…",
+    "emptyState": "Ask me anything about the Swedish state budget. I can look up figures for any expenditure area from 1975 to today.",
+    "suggestions": [
+      "What did the most money go to in 2024?",
+      "How has defense spending evolved?",
+      "Where do ROT and RUT live in the budget?",
+      "Difference between 2020 and 2025 in real kronor"
+    ],
+    "clear": "Clear chat",
+    "error": "Something went wrong. Please try again shortly.",
+    "serverNotConfigured": "The chat feature is not configured yet.",
+    "send": "Send",
+    "sendHint": "Enter to send · Shift+Enter for newline",
+    "toolUsed": "Fetched data",
+    "you": "You",
+    "assistant": "Statsbudget AI",
+    "reportErrorLink": "Report issue"
+  }
+}

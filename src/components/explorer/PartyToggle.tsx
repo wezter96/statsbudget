@@ -23,15 +23,15 @@ const PartyToggle = ({ enabled, onToggle, parties, selectedPartyIds, onPartiesCh
   return (
     <div className="flex flex-wrap items-center gap-3">
       <button
-        onClick={onToggle}
-        className={`rounded-lg px-3 py-1.5 text-sm font-medium transition-all ${
-          enabled
-            ? 'bg-primary text-primary-foreground shadow-sm'
-            : 'bg-secondary text-muted-foreground hover:text-foreground'
-        }`}
-        aria-pressed={enabled}
+        disabled
+        aria-disabled="true"
+        title="Partiernas skuggbudgetar är inte inlästa ännu — kommer i en senare version."
+        className="cursor-not-allowed rounded-lg bg-secondary px-3 py-1.5 text-sm font-medium text-muted-foreground opacity-60"
       >
         {t('explorer.partyComparison')}
+        <span className="ml-1.5 rounded-full bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide">
+          snart
+        </span>
       </button>
       {enabled && (
         <div className="flex flex-wrap gap-1.5">

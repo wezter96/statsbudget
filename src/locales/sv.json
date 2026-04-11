@@ -1,15 +1,14 @@
 {
   "site": {
-    "title": "Budgetkoll",
-    "tagline": "Så används dina skattekronor",
-    "description": "Följ den svenska statsbudgeten från 1975 till idag. Jämför partiernas förslag. Förstå vart pengarna går."
+    "title": "Statsbudget",
+    "tagline": "Så används dina skattepengar",
+    "description": "En oberoende visualisering av den svenska statsbudgeten. Baserad på officiell data från ESV, SCB och Riksdagen."
   },
   "hero": {
-    "heading": "Så används dina skattekronor",
-    "subheading": "Följ den svenska statsbudgeten från 1975 till idag. Jämför partiernas förslag. Förstå vart pengarna går.",
+    "heading": "Så används dina skattepengar",
+    "subheading": "Följ den svenska statsbudgeten från 1975 till idag. Förstå vart pengarna går.",
     "lastUpdated": "Senast uppdaterad: {{date}}",
-    "sources": "Källor: ESV · SCB · Riksdagen",
-    "explore": "↓ Utforska budgeten"
+    "sources": "Källor: ESV · SCB · Riksdagen"
   },
   "explorer": {
     "year": "År",
@@ -27,19 +26,36 @@
     "noData": "Ingen data tillgänglig för valt år.",
     "amount": "Belopp",
     "share": "Andel",
-    "change": "Förändring"
+    "change": "Förändring",
+    "totalBudget": "Total budget",
+    "distribution": "Fördelning",
+    "overTime": "Utveckling över tid",
+    "partyDisclaimer": "DEMO-SIFFROR · Partiernas skuggbudgetar är just nu fabricerade testdata för att visa hur funktionen ser ut. Riktiga siffror extraheras från Riksdagens motioner via AI och kommer i en senare version. Tro inte på dessa belopp.",
+    "verifyAt": "Verifiera hos Riksdagen:",
+    "budgetProposition": "Budgetproposition",
+    "financeCommittee": "Finansutskottet",
+    "table": {
+      "area": "Utgiftsområde"
+    },
+    "anslag": {
+      "heading": "Anslag inom {{area}}",
+      "loading": "Laddar anslag…",
+      "empty": "Inga anslag att visa."
+    }
   },
   "historical": {
     "heading": "Så såg den svenska budgeten ut för 50 år sedan",
     "intro": "En tillbakablick på hur svenska statens utgifter fördelades under 1970- och 1980-talet.",
     "source": "Källa",
-    "placeholder": "Redaktionell text om det politiska och ekonomiska läget detta år kommer att läggas till."
+    "placeholder": "Redaktionell text om det politiska och ekonomiska läget detta år kommer att läggas till.",
+    "today": "Till jämförelse",
+    "todayHeading": "Statsbudgeten idag"
   },
   "about": {
-    "heading": "Om Budgetkoll",
+    "heading": "Om Statsbudget",
     "project": {
       "title": "Om projektet",
-      "text": "Budgetkoll är ett medborgarverktyg som gör den svenska statsbudgeten tillgänglig och begriplig för alla. Projektet drivs ideellt med målet att stärka den demokratiska transparensen."
+      "text": "Statsbudget är ett medborgarverktyg som gör den svenska statsbudgeten tillgänglig och begriplig för alla. Projektet drivs ideellt med målet att stärka den demokratiska transparensen."
     },
     "sources": {
       "title": "Datakällor",
@@ -49,7 +65,7 @@
     },
     "method": {
       "title": "Metod",
-      "text": "Budgetdata struktureras i ett stjärnschema med dimensioner för år, utgiftsområde, anslag och parti. Inflationsjustering görs med KPI-index (basår 2026). Partiernas skuggbudgetar extraheras via AI-extraktion från motioner, stickprovskontrollerad — fel kan förekomma."
+      "text": "Budgetdata struktureras i ett stjärnschema med dimensioner för år, utgiftsområde, anslag och parti. Inflationsjustering görs med KPI-index. Partiernas skuggbudgetar extraheras via AI-extraktion från motioner, stickprovskontrollerad — fel kan förekomma."
     },
     "limitations": {
       "title": "Begränsningar",
@@ -61,7 +77,7 @@
     },
     "reportError": {
       "title": "Rapportera fel",
-      "text": "Hittat ett fel eller har en fråga? Kontakta oss:"
+      "text": "Hittat ett fel eller har en fråga? Skicka in en rapport så tittar vi på det:"
     }
   },
   "nav": {
@@ -70,11 +86,13 @@
     "about": "Om"
   },
   "footer": {
-    "about": "Om",
-    "data": "Data",
+    "tagline": "En oberoende visualisering av den svenska statsbudgeten. Baserad på officiell data från ESV, SCB och Riksdagen.",
+    "copyright": "© {{year}} statsbudget.se — Data från ESV, SCB och Riksdagen",
+    "disclaimer": "Webbplatsen tillhandahålls i befintligt skick. Inget ansvar tas för informationens riktighet, fullständighet eller aktualitet. Officiella uppgifter hos ESV, SCB och Riksdagen gäller.",
+    "about": "Om projektet",
+    "sourcesLink": "Datakällor",
     "reportError": "Rapportera fel",
-    "sources": "Källor: ESV · SCB · Riksdagen",
-    "lastUpdated": "Senast uppdaterad: {{date}}"
+    "language": "Språk"
   },
   "error": {
     "generic": "Något gick fel. Försök igen om en stund.",
@@ -85,5 +103,33 @@
   },
   "tooltip": {
     "utgiftsomrade": "Utgiftsområde — en av riksdagens cirka 27 kategorier för statens utgifter."
+  },
+  "banner": {
+    "aria": "Information om datakällor",
+    "heading": "Byggd med AI.",
+    "body": "Information är hämtad från ESV, SCB och Riksdagen men har bearbetats och strukturerats med hjälp av AI. Enskilda siffror kan innehålla fel.",
+    "cta": "Rapportera fel här",
+    "dismiss": "Stäng"
+  },
+  "chat": {
+    "title": "Fråga Statsbudget",
+    "trigger": "Öppna AI-chatt",
+    "placeholder": "Fråga om statsbudgeten…",
+    "emptyState": "Ställ en fråga om statsbudgeten. Jag kan slå upp siffror för alla utgiftsområden från 1975 till idag.",
+    "suggestions": [
+      "Vad gick mest pengar till 2024?",
+      "Hur har försvarsutgifterna utvecklats?",
+      "Var hamnar ROT och RUT i budgeten?",
+      "Skillnaden mellan 2020 och 2025 i reala kronor"
+    ],
+    "clear": "Rensa samtal",
+    "error": "Något gick fel. Försök igen om en stund.",
+    "serverNotConfigured": "Chat-funktionen är inte konfigurerad ännu.",
+    "send": "Skicka",
+    "sendHint": "Enter för att skicka · Shift+Enter för ny rad",
+    "toolUsed": "Hämtade data",
+    "you": "Du",
+    "assistant": "Statsbudget AI",
+    "reportErrorLink": "Rapportera problem"
   }
 }

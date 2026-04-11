@@ -1,7 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import Header from './Header';
 import Footer from './Footer';
+import AiDisclosureBanner from './AiDisclosureBanner';
+import { ChatDrawer } from './chat/ChatDrawer';
+import { ChatTrigger } from './chat/ChatTrigger';
 
 interface LayoutProps {
   children: ReactNode;
@@ -9,6 +12,7 @@ interface LayoutProps {
 
 const Layout = ({ children }: LayoutProps) => {
   const { t } = useTranslation();
+  const [chatOpen, setChatOpen] = useState(false);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -16,10 +20,13 @@ const Layout = ({ children }: LayoutProps) => {
         {t('a11y.skipToContent')}
       </a>
       <Header />
+      <AiDisclosureBanner />
       <main id="main-content" className="flex-1">
         {children}
       </main>
       <Footer />
+      <ChatTrigger onClick={() => setChatOpen(true)} />
+      <ChatDrawer open={chatOpen} onOpenChange={setChatOpen} />
     </div>
   );
 };

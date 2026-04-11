@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { DimYear, DimArea, DimParty, FactBudget, DisplayMode } from './supabase-types';
+import type { DimYear, DimArea, DimAnslag, DimParty, FactBudget, FactHistorical, DisplayMode } from './supabase-types';
 
 // The tables exist in the DB but aren't in the auto-generated types yet.
 // We cast to any for .from() calls and type the results manually.
@@ -9,6 +9,18 @@ export async function getYears(): Promise<DimYear[]> {
   const { data, error } = await db.from('dim_year').select('*').order('year_id', { ascending: true });
   if (error) throw error;
   return data as DimYear[];
+}
+
+/** Distinct years that actually have fact_budget rows. */
+export async function getBudgetYears(): Promise<number[]> {
+  const { data, error } = await db
+    .from('fact_budget')
+    .select('year_id')
+    .eq('is_revenue', false)
+    .is('anslag_id', null);
+  if (error) throw error;
+  const set = new Set<number>((data as { year_id: number }[]).map((r) => r.year_id));
+  return [...set].sort((a, b) => a - b);
 }
 
 export async function getAreas(): Promise<DimArea[]> {
@@ -21,6 +33,12 @@ export async function getParties(): Promise<DimParty[]> {
   const { data, error } = await db.from('dim_party').select('*').order('party_id', { ascending: true });
   if (error) throw error;
   return data as DimParty[];
+}
+
+export async function getAnslagByArea(areaId: number): Promise<DimAnslag[]> {
+  const { data, error } = await db.from('dim_anslag').select('*').eq('area_id', areaId).order('code', { ascending: true });
+  if (error) throw error;
+  return data as DimAnslag[];
 }
 
 export async function getBudgetByYear(
@@ -67,6 +85,19 @@ export async function getHistoricalSnapshot(year: number): Promise<FactBudget[]>
     .eq('year_id', year).is('anslag_id', null).eq('is_revenue', false);
   if (error) throw error;
   return data as FactBudget[];
+}
+
+export async function getHistoricalFact(year: number): Promise<FactHistorical[]> {
+  const { data, error } = await db.from('fact_historical').select('*')
+    .eq('year_id', year).order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data as FactHistorical[];
+}
+
+export async function getHistoricalYearMeta(year: number): Promise<DimYear | null> {
+  const { data, error } = await db.from('dim_year').select('*').eq('year_id', year).maybeSingle();
+  if (error) throw error;
+  return data as DimYear | null;
 }
 
 export function convertAmount(amount: number, mode: DisplayMode, yearData: DimYear, totalForYear?: number): number {

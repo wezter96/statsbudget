@@ -7,14 +7,168 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
-  }
   public: {
     Tables: {
-      [_ in never]: never
+      dim_anslag: {
+        Row: {
+          anslag_id: number
+          area_id: number
+          code: string
+          name_en: string | null
+          name_sv: string
+        }
+        Insert: {
+          anslag_id: number
+          area_id: number
+          code: string
+          name_en?: string | null
+          name_sv: string
+        }
+        Update: {
+          anslag_id?: number
+          area_id?: number
+          code?: string
+          name_en?: string | null
+          name_sv?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dim_anslag_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "dim_area"
+            referencedColumns: ["area_id"]
+          },
+        ]
+      }
+      dim_area: {
+        Row: {
+          area_id: number
+          code: string
+          name_en: string | null
+          name_sv: string
+          sort_order: number
+        }
+        Insert: {
+          area_id: number
+          code: string
+          name_en?: string | null
+          name_sv: string
+          sort_order: number
+        }
+        Update: {
+          area_id?: number
+          code?: string
+          name_en?: string | null
+          name_sv?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      dim_party: {
+        Row: {
+          code: string
+          color_hex: string
+          name_sv: string
+          party_id: number
+        }
+        Insert: {
+          code: string
+          color_hex: string
+          name_sv: string
+          party_id: number
+        }
+        Update: {
+          code?: string
+          color_hex?: string
+          name_sv?: string
+          party_id?: number
+        }
+        Relationships: []
+      }
+      dim_year: {
+        Row: {
+          cpi_index: number | null
+          gdp_nominal_sek: number | null
+          is_historical: boolean
+          year_id: number
+        }
+        Insert: {
+          cpi_index?: number | null
+          gdp_nominal_sek?: number | null
+          is_historical?: boolean
+          year_id: number
+        }
+        Update: {
+          cpi_index?: number | null
+          gdp_nominal_sek?: number | null
+          is_historical?: boolean
+          year_id?: number
+        }
+        Relationships: []
+      }
+      fact_budget: {
+        Row: {
+          amount_nominal_sek: number
+          anslag_id: number | null
+          area_id: number | null
+          budget_type: string
+          fact_id: number
+          is_revenue: boolean
+          party_id: number
+          year_id: number
+        }
+        Insert: {
+          amount_nominal_sek: number
+          anslag_id?: number | null
+          area_id?: number | null
+          budget_type: string
+          fact_id?: number
+          is_revenue?: boolean
+          party_id: number
+          year_id: number
+        }
+        Update: {
+          amount_nominal_sek?: number
+          anslag_id?: number | null
+          area_id?: number | null
+          budget_type?: string
+          fact_id?: number
+          is_revenue?: boolean
+          party_id?: number
+          year_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fact_budget_anslag_id_fkey"
+            columns: ["anslag_id"]
+            isOneToOne: false
+            referencedRelation: "dim_anslag"
+            referencedColumns: ["anslag_id"]
+          },
+          {
+            foreignKeyName: "fact_budget_area_id_fkey"
+            columns: ["area_id"]
+            isOneToOne: false
+            referencedRelation: "dim_area"
+            referencedColumns: ["area_id"]
+          },
+          {
+            foreignKeyName: "fact_budget_party_id_fkey"
+            columns: ["party_id"]
+            isOneToOne: false
+            referencedRelation: "dim_party"
+            referencedColumns: ["party_id"]
+          },
+          {
+            foreignKeyName: "fact_budget_year_id_fkey"
+            columns: ["year_id"]
+            isOneToOne: false
+            referencedRelation: "dim_year"
+            referencedColumns: ["year_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -153,3 +307,4 @@ export const Constants = {
     Enums: {},
   },
 } as const
+

@@ -1,32 +1,30 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   const { t } = useTranslation();
 
-  const scrollToExplorer = () => {
-    document.getElementById('explorer')?.scrollIntoView({ behavior: 'smooth' });
-  };
+  const lastUpdated = new Date().toLocaleDateString('sv-SE', {
+    year: 'numeric',
+    month: 'long',
+  });
 
   return (
-    <section className="relative flex flex-col items-center justify-center px-4 py-16 sm:py-20 md:min-h-[30vh]">
-      <div className="max-w-2xl text-center">
-        <h1 className="font-display text-4xl font-semibold leading-tight text-foreground sm:text-5xl md:text-[56px] md:leading-[1.1]">
+    <section className="px-4 pt-8 pb-6 sm:pt-12 sm:pb-8">
+      <div className="container max-w-3xl">
+        <h1 className="font-display text-[38px] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-[56px]">
           {t('hero.heading')}
         </h1>
-        <p className="mt-5 text-lg leading-relaxed text-muted-foreground sm:text-xl">
+        <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-lg">
           {t('hero.subheading')}
         </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-3 text-xs text-muted-foreground">
-          <span>{t('hero.lastUpdated', { date: '2024' })}</span>
-          <span className="hidden sm:inline">·</span>
-          <span className="rounded-full bg-secondary px-3 py-1">{t('hero.sources')}</span>
+        <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
+          <span>{t('hero.lastUpdated', { date: lastUpdated })}</span>
+          <span aria-hidden="true">·</span>
+          <Link to="/about#datakallor" className="text-muted-foreground hover:text-primary transition-colors">
+            {t('hero.sources')}
+          </Link>
         </div>
-        <button
-          onClick={scrollToExplorer}
-          className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-all hover:shadow-md hover:brightness-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          {t('hero.explore')}
-        </button>
       </div>
     </section>
   );

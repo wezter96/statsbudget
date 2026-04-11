@@ -3,6 +3,24 @@ export interface DimYear {
   cpi_index: number;
   gdp_nominal_sek: number;
   is_historical: boolean;
+  riksdagen_proposition_url?: string | null;
+  riksdagen_proposition_title?: string | null;
+  riksdagen_decision_url?: string | null;
+  riksdagen_decision_title?: string | null;
+  historical_context_sv?: string | null;
+  historical_source_url?: string | null;
+  historical_source_title?: string | null;
+  historical_confidence?: string | null;
+  fiscal_year_label?: string | null;
+}
+
+export interface FactHistorical {
+  fact_id: number;
+  year_id: number;
+  category_sv: string;
+  sort_order: number;
+  amount_mkr: number;
+  is_uncertain: boolean;
 }
 
 export interface DimArea {

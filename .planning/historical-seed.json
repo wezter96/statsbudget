@@ -1,0 +1,101 @@
+{
+  "_meta": {
+    "currency": "SEK",
+    "unit": "mkr",
+    "note": "Swedish fiscal years ran 1 July – 30 June. '1975' = budgetåret 1975/76 etc. Pre-1997 structure uses huvudtitlar (ministry-level), NOT the modern 27 utgiftsområden. Seed as historical snapshots.",
+    "confidence": {
+      "1975": "medium — breakdown is from FiU48 (1976/77 decision) used as proxy since prop 1975:1 PDF is too large to parse directly",
+      "1980": "high — breakdown from FiU50, reconciles with proposition totals",
+      "1985": "medium-high — first huvudtitel row (Kungl hov etc., 31468) is suspicious and should be manually re-verified against FiU37"
+    }
+  },
+  "1975": {
+    "fiscal_year_label": "1975/76",
+    "total_mkr": 101565,
+    "total_mkr_proposition": 93224,
+    "breakdown": [
+      { "name_sv": "Kungl hov- och slottsstaterna", "mkr": 14 },
+      { "name_sv": "Justitiedepartementet", "mkr": 4034 },
+      { "name_sv": "Utrikesdepartementet", "mkr": 3485 },
+      { "name_sv": "Försvarsdepartementet", "mkr": 10232 },
+      { "name_sv": "Socialdepartementet", "mkr": 30959 },
+      { "name_sv": "Kommunikationsdepartementet", "mkr": 4910 },
+      { "name_sv": "Finansdepartementet", "mkr": 7150 },
+      { "name_sv": "Utbildningsdepartementet", "mkr": 14208 },
+      { "name_sv": "Jordbruksdepartementet", "mkr": 4353 },
+      { "name_sv": "Handelsdepartementet", "mkr": 349 },
+      { "name_sv": "Arbetsmarknadsdepartementet", "mkr": 6011 },
+      { "name_sv": "Bostadsdepartementet", "mkr": 4933 },
+      { "name_sv": "Industridepartementet", "mkr": 1354 },
+      { "name_sv": "Kommundepartementet", "mkr": 1484 },
+      { "name_sv": "Riksdagen och dess myndigheter", "mkr": 163 },
+      { "name_sv": "Oförutsedda utgifter", "mkr": 1500 }
+    ],
+    "source_url": "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/betankande/angaende-statsbudget-for-budgetaret-197677_fz01fiu48/html/",
+    "source_title": "Finansutskottet, Betänkande 1975/76:FiU48 — Angående statsbudget för budgetåret 1976/77 (använd som proxy för 1975/76-strukturen; den egentliga prop 1975:1 finns på https://www.riksdagen.se/sv/dokument-och-lagar/dokument/proposition/regeringens-proposition-med-forslag-till_fy031/html/ )",
+    "context_sv": "Budgetåret 1975/76 präglas av efterdyningarna från oljekrisen 1973–74 och Palmes aktiva motkonjunkturpolitik — den så kallade 'bron över krisen' med lagerstöd, utbyggd offentlig sektor och ökade socialutgifter. Socialdepartementet och utbildning dominerade, medan räntor på statsskulden ännu var en liten post jämfört med senare decennier.",
+    "caveats": [
+      "Breakdown is actually the 1976/77 riksdag decision used as a structural proxy; absolute shape (share of each huvudtitel) is accurate but absolute Mkr differs ~8% from 1975/76.",
+      "Prop 1975:1 reports a total of 93 224 Mkr for 1975/76 — use that for the chart's total bar if you want the 1975/76 nominal figure; use 101 565 Mkr if you want the row sum to match the breakdown."
+    ]
+  },
+  "1980": {
+    "fiscal_year_label": "1980/81",
+    "total_mkr": 209277,
+    "total_mkr_proposition": 203773,
+    "breakdown": [
+      { "name_sv": "Kungl hov- och slottsstaterna", "mkr": 20.7 },
+      { "name_sv": "Justitiedepartementet", "mkr": 6329.1 },
+      { "name_sv": "Utrikesdepartementet", "mkr": 5735.1 },
+      { "name_sv": "Försvarsdepartementet", "mkr": 16306.8 },
+      { "name_sv": "Socialdepartementet", "mkr": 53184.7 },
+      { "name_sv": "Kommunikationsdepartementet", "mkr": 10062.4 },
+      { "name_sv": "Ekonomidepartementet", "mkr": 397.7 },
+      { "name_sv": "Budgetdepartementet", "mkr": 13872.1 },
+      { "name_sv": "Utbildningsdepartementet", "mkr": 28225.1 },
+      { "name_sv": "Jordbruksdepartementet", "mkr": 6284.4 },
+      { "name_sv": "Handelsdepartementet", "mkr": 1446.7 },
+      { "name_sv": "Arbetsmarknadsdepartementet", "mkr": 11166.1 },
+      { "name_sv": "Bostadsdepartementet", "mkr": 15186.3 },
+      { "name_sv": "Industridepartementet", "mkr": 9362.4 },
+      { "name_sv": "Kommundepartementet", "mkr": 2421.0 },
+      { "name_sv": "Riksdagen och dess myndigheter", "mkr": 276.0 },
+      { "name_sv": "Räntor på statsskulden", "mkr": 19600.0 },
+      { "name_sv": "Oförutsedda utgifter", "mkr": 9000.0 }
+    ],
+    "source_url": "https://www.riksdagen.se/sv/dokument-och-lagar/dokument/betankande/angaende-statsbudget-for-budgetaret-198081_g301fiu50/html/",
+    "source_title": "Finansutskottet, Betänkande 1979/80:FiU50 — Angående statsbudget för budgetåret 1980/81 (underliggande: prop 1979/80:100)",
+    "context_sv": "Budgetåret 1980/81 hanteras av den borgerliga regeringen Fälldin II mitt under andra oljekrisen. Inflationen toppade kring 15 % hösten 1980, och i september 1981 devalverades kronan med 10 %. Socialutgifter, bostadsstöd och sysselsättningsåtgärder växte snabbt, och räntor på statsskulden var nu en tydlig post på 19,6 mdkr — nästan lika stor som försvaret.",
+    "caveats": []
+  },
+  "1985": {
+    "fiscal_year_label": "1985/86",
+    "total_mkr": 322389,
+    "total_mkr_proposition": 320325,
+    "breakdown": [
+      { "name_sv": "Kungl hov- och slottsstaterna m.m. (första huvudtiteln — verifiera!)", "mkr": 31468, "uncertain": true },
+      { "name_sv": "Justitiedepartementet", "mkr": 9096 },
+      { "name_sv": "Utrikesdepartementet", "mkr": 9720 },
+      { "name_sv": "Försvarsdepartementet", "mkr": 25085 },
+      { "name_sv": "Socialdepartementet", "mkr": 79347 },
+      { "name_sv": "Kommunikationsdepartementet", "mkr": 11974 },
+      { "name_sv": "Finansdepartementet", "mkr": 16423 },
+      { "name_sv": "Utbildningsdepartementet", "mkr": 38097 },
+      { "name_sv": "Jordbruksdepartementet", "mkr": 6486 },
+      { "name_sv": "Arbetsmarknadsdepartementet", "mkr": 17870 },
+      { "name_sv": "Bostadsdepartementet", "mkr": 13843 },
+      { "name_sv": "Industridepartementet", "mkr": 10888 },
+      { "name_sv": "Civildepartementet", "mkr": 5695 },
+      { "name_sv": "Riksdagen och dess myndigheter", "mkr": 431 },
+      { "name_sv": "Räntor på statsskulden", "mkr": 77400 },
+      { "name_sv": "Oförutsedda utgifter", "mkr": 1 }
+    ],
+    "source_url": "https://www.riksdagen.se/sv/dokument-lagar/arende/betankande/om-statsbudgetens-utgifter-for-budgetaret-198586_G801FiU37/html",
+    "source_title": "Finansutskottet, Betänkande 1984/85:FiU37 — Om statsbudgetens utgifter för budgetåret 1985/86 och statliga kreditgarantier (underliggande: prop 1984/85:100)",
+    "context_sv": "Budgetåret 1985/86 är mitt i Palmes andra regering, efter den stora 16 %-devalveringen i oktober 1982 och mitt i 'tredje vägens politik'. Ekonomin växer men inflationen ligger kvar på 7–8 %. Räntor på statsskulden har exploderat till 77 mdkr och är nu näst största utgiftsposten efter socialdepartementet — de utgör närmare 24 % av statsutgifterna. Detta är höjdpunkten av den traditionella välfärdsstatsexpansionen innan 1990-talskrisen.",
+    "caveats": [
+      "Första huvudtitelns värde (31 468 Mkr) ser fel ut — Kungl hov brukar ligga på ~30 Mkr. Raden är sannolikt felextraherad från FiU37 och bör manuellt kontrolleras mot betänkandets öppningstabell innan seed.",
+      "Handelsdepartementet saknas i extraktionen — det slogs eventuellt samman med Industridepartementet 1982/83; verifiera."
+    ]
+  }
+}

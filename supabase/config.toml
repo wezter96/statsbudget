@@ -1,1 +1,10 @@
-project_id = "sbsnogkvojghqzkwkudx"
+project_id = "zpubqgkmjkbhygjgrwhu"
+
+[functions.submit-issue]
+verify_jwt = false
+
+[functions.og]
+verify_jwt = false
+
+[functions.chat]
+verify_jwt = false

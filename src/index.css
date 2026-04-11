@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800;900&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,52 +6,52 @@
 
 @layer base {
   :root {
-    --background: 38 33% 97%;
-    --foreground: 30 16% 11%;
+    --background: 0 0% 100%;           /* pure white */
+    --foreground: 220 15% 10%;          /* near-black ink */
 
     --card: 0 0% 100%;
-    --card-foreground: 30 16% 11%;
+    --card-foreground: 220 15% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 30 16% 11%;
+    --popover-foreground: 220 15% 10%;
 
-    --primary: 12 47% 43%;
-    --primary-foreground: 38 33% 97%;
+    --primary: 222 71% 40%;             /* dark blue CTA */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 36 24% 93%;
-    --secondary-foreground: 30 16% 11%;
+    --secondary: 220 14% 96%;           /* subtle gray surface */
+    --secondary-foreground: 220 15% 10%;
 
-    --muted: 36 24% 93%;
-    --muted-foreground: 30 9% 38%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 40%;
 
-    --accent: 36 24% 93%;
-    --accent-foreground: 30 16% 11%;
+    --accent: 217 76% 48%;              /* royal blue */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 14 51% 47%;
-    --destructive-foreground: 38 33% 97%;
+    --destructive: 8 78% 48%;
+    --destructive-foreground: 0 0% 100%;
 
-    --positive: 125 15% 42%;
-    --positive-foreground: 38 33% 97%;
-    --negative: 14 51% 47%;
-    --negative-foreground: 38 33% 97%;
+    --positive: 135 50% 37%;
+    --positive-foreground: 0 0% 100%;
+    --negative: 8 78% 48%;
+    --negative-foreground: 0 0% 100%;
 
-    --border: 36 27% 87%;
-    --input: 36 27% 87%;
-    --ring: 12 47% 43%;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 222 71% 40%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    --sidebar-background: 38 33% 97%;
-    --sidebar-foreground: 30 16% 11%;
-    --sidebar-primary: 12 47% 43%;
-    --sidebar-primary-foreground: 38 33% 97%;
-    --sidebar-accent: 36 24% 93%;
-    --sidebar-accent-foreground: 30 16% 11%;
-    --sidebar-border: 36 27% 87%;
-    --sidebar-ring: 12 47% 43%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 220 15% 10%;
+    --sidebar-primary: 222 71% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 96%;
+    --sidebar-accent-foreground: 220 15% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 222 71% 40%;
 
-    --font-display: 'Fraunces', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-display: 'Manrope', system-ui, sans-serif;
+    --font-body: 'Inter', system-ui, sans-serif;
   }
 }
 
@@ -65,8 +65,9 @@
     font-feature-settings: "cv11", "ss01";
   }
 
-  h1, h2, h3 {
+  h1, h2, h3, h4 {
     font-family: var(--font-display);
+    letter-spacing: -0.015em;
   }
 
   .tabular-nums {
@@ -77,5 +78,23 @@
 @layer utilities {
   .skip-to-content {
     @apply sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:rounded-lg;
+  }
+
+  /* Subtle scroll-triggered reveal — used via the useReveal() hook */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .reveal.in-view {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
   }
 }

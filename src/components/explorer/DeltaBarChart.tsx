@@ -5,6 +5,8 @@ import { TooltipComponent, GridComponent, LegendComponent } from 'echarts/compon
 import { CanvasRenderer } from 'echarts/renderers';
 import { useTranslation } from 'react-i18next';
 import { formatAmount } from '@/lib/budget-queries';
+import { CHROME } from '@/lib/palette';
+import SourceLink from '@/components/SourceLink';
 import type { DisplayMode, DimArea, DimParty } from '@/lib/supabase-types';
 
 echarts.use([BarChart, TooltipComponent, GridComponent, LegendComponent, CanvasRenderer]);
@@ -57,7 +59,7 @@ const DeltaBarChart = ({ data, mode }: DeltaBarChartProps) => {
     },
     legend: {
       bottom: 0,
-      textStyle: { fontFamily: 'Inter', fontSize: 11, color: '#6B635A' },
+      textStyle: { fontFamily: 'Inter', fontSize: 11, color: CHROME.textMuted },
     },
     grid: { left: 160, right: 20, top: 20, bottom: 50 },
     xAxis: {
@@ -65,15 +67,15 @@ const DeltaBarChart = ({ data, mode }: DeltaBarChartProps) => {
       axisLabel: {
         fontFamily: 'Inter',
         fontSize: 11,
-        color: '#6B635A',
+        color: CHROME.textMuted,
         formatter: (v: number) => formatAmount(v, mode),
       },
-      splitLine: { lineStyle: { color: '#E8E2D6' } },
+      splitLine: { lineStyle: { color: CHROME.border } },
     },
     yAxis: {
       type: 'category',
       data: categories,
-      axisLabel: { fontFamily: 'Inter', fontSize: 11, color: '#1F1B16', width: 140, overflow: 'truncate' },
+      axisLabel: { fontFamily: 'Inter', fontSize: 11, color: CHROME.text, width: 140, overflow: 'truncate' },
     },
     series,
     animationDuration: prefersReducedMotion ? 0 : 600,
@@ -81,13 +83,16 @@ const DeltaBarChart = ({ data, mode }: DeltaBarChartProps) => {
 
   return (
     <div>
+      <p className="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-relaxed text-amber-900">
+        {t('explorer.partyDisclaimer')}
+      </p>
       <ReactEChartsCore
         echarts={echarts}
         option={option}
         style={{ height: Math.max(400, categories.length * 30) + 'px', width: '100%' }}
         aria-label="Partiernas budgetförslag jämfört med regeringen"
       />
-      <p className="mt-2 text-xs text-muted-foreground">{t('explorer.source')}</p>
+      <div className="mt-2"><SourceLink sources="ESV, Riksdagen" /></div>
     </div>
   );
 };
