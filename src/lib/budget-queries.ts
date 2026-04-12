@@ -157,11 +157,16 @@ export async function getIncomeFacts(year: number): Promise<FactIncome[]> {
 }
 
 export async function getIncomeTimeSeries(): Promise<FactIncome[]> {
+  // Fetch only top-level group facts for the time series chart.
+  // This keeps the result well under Supabase's 1000-row default limit
+  // (~9 groups × 27 years = ~243 rows vs ~1161 total).
+  const groups = await getIncomeGroups();
+  const groupIds = groups.map(g => g.income_title_id);
   const { data, error } = await db
     .from('fact_income')
     .select('*')
-    .order('year_id', { ascending: true })
-    .range(0, 4999);
+    .in('income_title_id', groupIds)
+    .order('year_id', { ascending: true });
   if (error) throw error;
   return (data ?? []) as FactIncome[];
 }
