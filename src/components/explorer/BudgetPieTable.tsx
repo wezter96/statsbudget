@@ -322,18 +322,18 @@ const AnslagBreakdown = ({ areaId, areaName, year }: AnslagBreakdownProps) => {
 
   return (
     <div className="grid gap-4 md:grid-cols-5">
-      <div className="md:col-span-2">
+      <div className="md:col-span-2 min-w-0 overflow-hidden">
         <p className="mb-2 text-xs uppercase tracking-wide text-muted-foreground">
           {t('explorer.anslag.heading', { area: localizeArea(areaName) })}
         </p>
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          style={{ height: '260px', width: '100%' }}
+          style={{ height: '220px', width: '100%' }}
           aria-label={`Anslag i ${areaName}`}
         />
       </div>
-      <div className="md:col-span-3">
+      <div className="md:col-span-3 min-w-0">
         <ul className="divide-y divide-border/50">
           {rows.map((r) => {
             const pct = areaTotal > 0 ? (r.amount / areaTotal) * 100 : 0;
