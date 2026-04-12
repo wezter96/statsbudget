@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
@@ -6,20 +6,17 @@ import { useSearchParams } from 'react-router-dom';
 import Layout from '@/components/Layout';
 import IncomePieChart from '@/components/income/IncomePieChart';
 import IncomeTrendChart from '@/components/income/IncomeTrendChart';
-import IncomeTable from '@/components/income/IncomeTable';
 import {
   getIncomeGroups,
   getIncomeFacts,
   getIncomeTimeSeries,
   getYears,
 } from '@/lib/budget-queries';
-import type { FactIncome } from '@/lib/supabase-types';
 
 const SkatteintakterPage = () => {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language?.startsWith('en');
   const [params, setParams] = useSearchParams();
-  const tableRef = useRef<HTMLDivElement>(null);
 
   const years = useQuery({ queryKey: ['years'], queryFn: getYears });
   const groups = useQuery({ queryKey: ['income-groups'], queryFn: getIncomeGroups });
@@ -83,6 +80,8 @@ const SkatteintakterPage = () => {
     group: r.group,
     amount_mkr: r.amount_mkr,
     pct: r.pct,
+    changePct: r.changePct,
+    is_estimated: r.is_estimated,
   }));
 
   // Trend data: one series per top-level group
@@ -117,14 +116,6 @@ const SkatteintakterPage = () => {
     return `${new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(Math.round(v / 1000))} mdr kr`;
   };
 
-  const [search, setSearch] = useState('');
-  const [expandedGroupId, setExpandedGroupId] = useState<number | null>(null);
-
-  const handleGroupClick = (id: number) => {
-    setExpandedGroupId(prev => prev === id ? null : id);
-    tableRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  };
-
   return (
     <Layout>
       <Helmet>
@@ -151,7 +142,7 @@ const SkatteintakterPage = () => {
         </div>
       </section>
 
-      {/* Pie chart overview */}
+      {/* Pie chart + expandable table */}
       <section className="py-10 sm:py-14 border-t border-border">
         <div className="container max-w-5xl">
           <div className="flex flex-wrap items-end justify-between gap-4 mb-6">
@@ -196,7 +187,7 @@ const SkatteintakterPage = () => {
             <IncomePieChart
               rows={pieRows}
               year={selectedYear!}
-              onGroupClick={handleGroupClick}
+              facts={facts.data ?? []}
             />
           )}
         </div>
@@ -218,60 +209,30 @@ const SkatteintakterPage = () => {
         </section>
       )}
 
-      {/* Detailed table */}
-      <section ref={tableRef} className="py-10 sm:py-14 border-t border-border">
-        <div className="container max-w-5xl">
-          <h2 className="font-display text-2xl font-semibold text-foreground sm:text-3xl mb-6">
-            {t('skatteintakter.tableHeading')}
-          </h2>
-
-          <div className="mb-6 flex flex-wrap items-end gap-4">
-            <label className="flex flex-col text-sm">
-              <span className="mb-1 text-muted-foreground">{t('skatteintakter.search')}</span>
-              <input
-                type="text"
-                placeholder={t('skatteintakter.searchPlaceholder')}
-                className="rounded-md border border-input bg-background px-3 py-2 w-full sm:w-56"
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-              />
-            </label>
-          </div>
-
-          {hasData && (
-            <IncomeTable
-              rows={groupRows}
-              year={selectedYear!}
-              facts={facts.data ?? []}
-              search={search}
-              expandedGroupId={expandedGroupId}
-              onToggleGroup={(id) => setExpandedGroupId(prev => prev === id ? null : id)}
-            />
-          )}
-
-          <div className="mt-8 space-y-2 text-xs text-muted-foreground">
-            <p>
-              <strong>{t('skatteintakter.sourcesLabel')}:</strong>{' '}
-              <a
-                className="text-primary underline underline-offset-2"
-                href="https://www.esv.se/statens-ekonomi/statens-budget/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                ESV — Statens budget
-              </a>
-              {' · '}
-              <a
-                className="text-primary underline underline-offset-2"
-                href="https://www.statistikdatabasen.scb.se/"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                SCB Statistikdatabasen
-              </a>
-            </p>
-            <p>{t('skatteintakter.caveat')}</p>
-          </div>
+      {/* Sources */}
+      <section className="py-6 border-t border-border">
+        <div className="container max-w-5xl space-y-2 text-xs text-muted-foreground">
+          <p>
+            <strong>{t('skatteintakter.sourcesLabel')}:</strong>{' '}
+            <a
+              className="text-primary underline underline-offset-2"
+              href="https://www.esv.se/statens-ekonomi/statens-budget/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ESV — Statens budget
+            </a>
+            {' · '}
+            <a
+              className="text-primary underline underline-offset-2"
+              href="https://www.statistikdatabasen.scb.se/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              SCB Statistikdatabasen
+            </a>
+          </p>
+          <p>{t('skatteintakter.caveat')}</p>
         </div>
       </section>
     </Layout>

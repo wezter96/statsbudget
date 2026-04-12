@@ -160,7 +160,8 @@ export async function getIncomeTimeSeries(): Promise<FactIncome[]> {
   const { data, error } = await db
     .from('fact_income')
     .select('*')
-    .order('year_id', { ascending: true });
+    .order('year_id', { ascending: true })
+    .range(0, 4999);
   if (error) throw error;
   return (data ?? []) as FactIncome[];
 }
