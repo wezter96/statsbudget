@@ -29,6 +29,8 @@ dist-ssr
 
 
 .playwright-mcp
+test-results/
+playwright-report/
 
 # Claude Code worktrees + transient outputs
 .claude/
