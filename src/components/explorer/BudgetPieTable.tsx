@@ -130,16 +130,10 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
     [],
   );
 
-  const PANEL_HEIGHT_LG = 520;
-
   return (
     <div className="grid gap-4 sm:gap-6 lg:grid-cols-5">
-      <div className="lg:col-span-2">
-        <div
-          className="flex items-center justify-center rounded-xl bg-card p-2 sm:p-4 ring-1 ring-border/60 h-[260px] lg:h-auto"
-          style={{ minHeight: undefined }}
-          {...(typeof window !== 'undefined' && window.innerWidth >= 1024 ? { style: { height: PANEL_HEIGHT_LG } } : {})}
-        >
+      <div className="lg:col-span-2 min-w-0">
+        <div className="flex items-center justify-center rounded-xl bg-card p-2 sm:p-4 ring-1 ring-border/60 h-[260px] sm:h-[300px] lg:h-[520px] overflow-hidden">
           <ReactEChartsCore
             ref={chartRef}
             echarts={echarts}
@@ -151,11 +145,8 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
         </div>
       </div>
 
-      <div className="lg:col-span-3">
-        <div
-          className="relative overflow-hidden rounded-xl bg-card ring-1 ring-border/60"
-          style={typeof window !== 'undefined' && window.innerWidth >= 1024 ? { height: PANEL_HEIGHT_LG } : { maxHeight: 420 }}
-        >
+      <div className="lg:col-span-3 min-w-0">
+        <div className="relative overflow-hidden rounded-xl bg-card ring-1 ring-border/60 max-h-[420px] lg:max-h-none lg:h-[520px]">
           <div className="h-full overflow-y-auto pr-1 [scrollbar-gutter:stable] [scrollbar-color:theme(colors.border)_transparent]">
           <table className="w-full text-sm">
             <thead className="sticky top-0 z-10 bg-muted/90 backdrop-blur">

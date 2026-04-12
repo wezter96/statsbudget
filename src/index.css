@@ -98,3 +98,10 @@
     }
   }
 }
+
+@media (min-width: 640px) {
+  .container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
