@@ -32,7 +32,14 @@ const SkatteintakterPage = () => {
     return Array.from(set).sort((a, b) => a - b);
   }, [series.data]);
 
-  const defaultYear = availableYears.length > 0 ? availableYears[availableYears.length - 1] : years.data?.at(-1)?.year_id;
+  // Default to the current year (or latest available before it) — avoids
+  // defaulting to a pure forecast year like 2026.
+  const currentCalendarYear = new Date().getFullYear();
+  const defaultYear = availableYears.length > 0
+    ? (availableYears.includes(currentCalendarYear)
+        ? currentCalendarYear
+        : availableYears.filter(y => y <= currentCalendarYear).at(-1) ?? availableYears[availableYears.length - 1])
+    : years.data?.at(-1)?.year_id;
   const yearParam = params.get('year');
   const selectedYear = yearParam ? parseInt(yearParam, 10) : defaultYear;
 
@@ -136,6 +143,17 @@ const SkatteintakterPage = () => {
 
   const total = groupRows.reduce((s, r) => s + r.amount_mkr, 0);
   const hasData = total > 0;
+  const isEstimatedYear = groupRows.some(r => r.is_estimated);
+
+  // Find the latest actual (non-estimated) year for context
+  const latestActualYear = useMemo(() => {
+    if (!series.data) return null;
+    const actualYears = new Set<number>();
+    for (const f of series.data) {
+      if (!f.is_estimated) actualYears.add(f.year_id);
+    }
+    return actualYears.size > 0 ? Math.max(...actualYears) : null;
+  }, [series.data]);
 
   const fmtMdr = (v: number) => {
     const locale = isEn ? 'en-GB' : 'sv-SE';
@@ -143,6 +161,16 @@ const SkatteintakterPage = () => {
   };
 
   const availableYearsDesc = useMemo(() => [...availableYears].reverse(), [availableYears]);
+
+  // Track which years are estimated (for dropdown labels)
+  const estimatedYears = useMemo(() => {
+    if (!series.data) return new Set<number>();
+    const est = new Set<number>();
+    for (const f of series.data) {
+      if (f.is_estimated) est.add(f.year_id);
+    }
+    return est;
+  }, [series.data]);
 
   return (
     <Layout>
@@ -178,6 +206,11 @@ const SkatteintakterPage = () => {
               <h2 className="font-display text-xl font-semibold text-foreground sm:text-2xl">
                 {t('skatteintakter.pieHeading')} {selectedYear || ''}
               </h2>
+              {isEstimatedYear && (
+                <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                  {t('skatteintakter.estimated')}
+                </span>
+              )}
               {hasData && (
                 <span className="text-sm text-muted-foreground">
                   {t('skatteintakter.total')}:{' '}
@@ -199,7 +232,9 @@ const SkatteintakterPage = () => {
                 }}
               >
                 {availableYearsDesc.map(y => (
-                  <option key={y} value={y}>{y}</option>
+                  <option key={y} value={y}>
+                    {y}{estimatedYears.has(y) ? ` (${t('skatteintakter.estimated')})` : ''}
+                  </option>
                 ))}
               </select>
               <button
@@ -247,6 +282,16 @@ const SkatteintakterPage = () => {
               year={selectedYear!}
               facts={facts.data ?? []}
             />
+          )}
+
+          {isEstimatedYear && hasData && latestActualYear && (
+            <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50/50 px-4 py-3 text-sm text-amber-900">
+              <strong>{isEn ? 'Forecast' : 'Prognos'}:</strong>{' '}
+              {isEn
+                ? `The figures for ${selectedYear} are government forecasts from the budget proposition, not actual outcomes. The latest year with confirmed actuals is ${latestActualYear}. Actual outcomes are published by ESV after each fiscal year closes.`
+                : `Siffrorna för ${selectedYear} är regeringens prognoser från budgetpropositionen, inte faktiskt utfall. Senaste år med bekräftat utfall är ${latestActualYear}. Faktiskt utfall publiceras av ESV efter varje räkenskapsårs slut.`
+              }
+            </div>
           )}
         </div>
       </section>
