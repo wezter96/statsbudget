@@ -146,7 +146,10 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
       </div>
 
       <div className="lg:col-span-3 min-w-0">
-        <div className="relative overflow-hidden rounded-xl bg-card ring-1 ring-border/60 max-h-[420px] lg:max-h-none lg:h-[520px]">
+        <div className={cn(
+          'relative overflow-hidden rounded-xl bg-card ring-1 ring-border/60 lg:h-[520px]',
+          expandedAreaId ? '' : 'max-h-[420px] lg:max-h-none',
+        )}>
           <div className="h-full overflow-y-auto pr-1 [scrollbar-gutter:stable] [scrollbar-color:theme(colors.border)_transparent]">
           <table className="w-full text-sm table-fixed">
             <colgroup>
@@ -336,7 +339,7 @@ const AnslagBreakdown = ({ areaId, areaName, year }: AnslagBreakdownProps) => {
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          style={{ height: '220px', width: '100%' }}
+          style={{ height: window.innerWidth < 640 ? '180px' : '220px', width: '100%' }}
           aria-label={`Anslag i ${areaName}`}
         />
       </div>
@@ -347,20 +350,20 @@ const AnslagBreakdown = ({ areaId, areaName, year }: AnslagBreakdownProps) => {
             return (
               <li
                 key={r.id}
-                className="flex items-center justify-between gap-3 py-1.5 text-sm"
+                className="flex items-center justify-between gap-2 py-1.5 text-xs sm:text-sm"
                 title={r.name}
               >
-                <div className="flex items-center gap-2 min-w-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                   <span
                     aria-hidden="true"
-                    className="inline-block h-2.5 w-2.5 rounded-sm shrink-0"
+                    className="inline-block h-2 w-2 sm:h-2.5 sm:w-2.5 rounded-sm shrink-0"
                     style={{ backgroundColor: stableColor(r.name) }}
                   />
                   <span className="truncate text-foreground">{r.name}</span>
                 </div>
-                <div className="flex items-baseline gap-2 shrink-0 tabular-nums">
+                <div className="flex items-baseline gap-1.5 sm:gap-2 shrink-0 tabular-nums whitespace-nowrap">
                   <span className="text-foreground">{mkr(r.amount)}</span>
-                  <span className="text-xs text-muted-foreground">{pct.toFixed(1)}%</span>
+                  <span className="text-xs text-muted-foreground hidden sm:inline">{pct.toFixed(1)}%</span>
                 </div>
               </li>
             );
