@@ -252,10 +252,10 @@
     "placeholder": "Ask about the state budget…",
     "emptyState": "Ask me anything about the Swedish state budget. I can look up figures for any expenditure area from 1975 to today.",
     "suggestions": [
-      "What did the most money go to in 2024?",
-      "How has defense spending evolved?",
-      "Where do ROT and RUT live in the budget?",
-      "Difference between 2020 and 2025 in real kronor"
+      "What did the most money go to in 2025?",
+      "How much goes to migration?",
+      "How much do the wealthy get in tax deductions compared to what the poor get in benefits?",
+      "What has increased and decreased the most since 2015?"
     ],
     "clear": "Clear chat",
     "error": "Something went wrong. Please try again shortly.",

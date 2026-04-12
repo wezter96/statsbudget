@@ -252,10 +252,10 @@
     "placeholder": "Fråga om statsbudgeten…",
     "emptyState": "Ställ en fråga om statsbudgeten. Jag kan slå upp siffror för alla utgiftsområden från 1975 till idag.",
     "suggestions": [
-      "Vad gick mest pengar till 2024?",
-      "Hur har försvarsutgifterna utvecklats?",
-      "Var hamnar ROT och RUT i budgeten?",
-      "Skillnaden mellan 2020 och 2025 i reala kronor"
+      "Vad gick mest pengar till 2025?",
+      "Hur mycket går till migration?",
+      "Hur mycket får rika i skatteavdrag jämfört med vad fattiga får i bidrag?",
+      "Vad har ökat och minskat mest sedan 2015?"
     ],
     "clear": "Rensa samtal",
     "error": "Något gick fel. Försök igen om en stund.",
