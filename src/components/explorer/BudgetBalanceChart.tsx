@@ -34,7 +34,7 @@ const BudgetBalanceChart = () => {
         return `<strong>${row.year}</strong><br/>${bloc} regering<br/>Budgetsaldo: <strong>${sign}${row.saldo_mdkr.toFixed(1)} mdr kr</strong>`;
       },
     },
-    grid: { left: 60, right: 16, top: 24, bottom: 40 },
+    grid: { left: window.innerWidth < 640 ? 40 : 60, right: 8, top: 24, bottom: 40 },
     xAxis: {
       type: 'category',
       data: SALDO_DATA.map((r) => r.year),

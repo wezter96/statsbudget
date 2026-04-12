@@ -14,7 +14,7 @@ const Layout = ({ children }: LayoutProps) => {
   const [chatOpen, setChatOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col overflow-x-hidden">
       <a href="#main-content" className="skip-to-content">
         {t('a11y.skipToContent')}
       </a>

@@ -272,7 +272,7 @@ const Explorer = () => {
           </div>
 
           {/* Politik section: budget balance + party comparison */}
-          <div className="space-y-10 rounded-xl bg-muted/30 p-6 ring-1 ring-border/60">
+          <div className="space-y-10 rounded-xl bg-muted/30 p-3 sm:p-6 ring-1 ring-border/60">
             <h2 className="font-display text-xl font-semibold text-foreground">
               {t('explorer.politicsHeading')}
             </h2>

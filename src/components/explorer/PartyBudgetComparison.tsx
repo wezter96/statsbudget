@@ -110,7 +110,7 @@ const PartyBudgetComparison = () => {
           return `<strong>${row.party.name_sv}</strong><br/>${sign}${formatMkrLocalized(row.total / 1e6, lang)} vs regeringen`;
         },
       },
-      grid: { left: 120, right: 24, top: 8, bottom: 24 },
+      grid: { left: window.innerWidth < 640 ? 80 : 120, right: 16, top: 8, bottom: 24 },
       xAxis: {
         type: 'value',
         axisLabel: {
@@ -206,7 +206,9 @@ const PartyBudgetComparison = () => {
             <summary className="cursor-pointer text-sm font-medium text-primary hover:underline">
               {t('explorer.showPerArea')}
             </summary>
-            <div className="mt-3 overflow-x-auto rounded-md border border-border">
+
+            {/* Desktop: table layout */}
+            <div className="mt-3 hidden sm:block overflow-x-auto rounded-md border border-border">
               <table className="w-full text-sm">
                 <thead className="bg-muted/50 text-left text-muted-foreground">
                   <tr>
@@ -248,6 +250,41 @@ const PartyBudgetComparison = () => {
                   ))}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile: stacked card layout */}
+            <div className="mt-3 sm:hidden space-y-3">
+              {shadowData.slice(0, 27).filter((r) => r.deltas.some((d) => d.delta !== 0)).map((r) => (
+                <div key={r.area.area_id} className="rounded-md border border-border p-3">
+                  <p className="text-sm font-medium text-foreground mb-2">
+                    {localizeAreaName(r.area.name_sv, lang)}
+                  </p>
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-sm">
+                    {oppositionParties
+                      .filter((p) => totalDeltas.some((td) => td.party.party_id === p.party_id))
+                      .map((p) => {
+                        const d = r.deltas.find((dd) => dd.party.party_id === p.party_id);
+                        const v = d?.delta ?? 0;
+                        if (v === 0) return null;
+                        const sign = v > 0 ? '+' : '';
+                        return (
+                          <div key={p.party_id} className="flex items-center justify-between">
+                            <span className="flex items-center gap-1.5 text-muted-foreground">
+                              <span
+                                className="inline-block h-2 w-2 rounded-full shrink-0"
+                                style={{ backgroundColor: `#${p.color_hex}` }}
+                              />
+                              {p.code}
+                            </span>
+                            <span className={`tabular-nums ${v > 0 ? 'text-green-700' : 'text-red-600'}`}>
+                              {sign}{formatMkrLocalized(v / 1e6, lang)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              ))}
             </div>
           </details>
         </>

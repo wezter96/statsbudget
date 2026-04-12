@@ -31,9 +31,9 @@ const Header = () => {
         hidden ? '-translate-y-full' : 'translate-y-0',
       )}
     >
-      <div className="container flex h-14 items-center justify-between">
-        <Brand />
-        <nav aria-label="Huvudnavigation" className="flex gap-1 sm:gap-2">
+      <div className="container flex h-14 items-center gap-2 sm:gap-4">
+        <Brand className="shrink-0" />
+        <nav aria-label="Huvudnavigation" className="flex flex-1 justify-end gap-0.5 sm:gap-1.5 overflow-x-auto">
           {links.map((link) => {
             const active = currentSvPath === link.to;
             return (
@@ -41,7 +41,7 @@ const Header = () => {
                 key={link.to}
                 to={loc(link.to)}
                 className={cn(
-                  'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                  'shrink-0 rounded-full px-2 py-1 text-xs sm:px-3 sm:py-1.5 sm:text-sm font-medium transition-colors whitespace-nowrap',
                   active
                     ? 'bg-secondary text-foreground'
                     : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60',

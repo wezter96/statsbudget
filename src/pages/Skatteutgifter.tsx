@@ -136,8 +136,8 @@ function ComparisonSection() {
 
         <div className="mt-8 space-y-3">
           {comparisonData.map(cat => (
-            <div key={cat.catKey} className="flex items-center gap-3">
-              <div className="w-48 sm:w-64 text-right text-xs sm:text-sm truncate">
+            <div key={cat.catKey} className="flex items-center gap-2 sm:gap-3">
+              <div className="w-28 sm:w-64 text-right text-xs sm:text-sm truncate">
                 <span className={cat.color + ' font-medium'}>{cat.total}</span>
               </div>
               <div className="flex-1">
@@ -339,7 +339,7 @@ const SkatteutgifterPage = () => {
               <input
                 type="text"
                 placeholder={t('skatteutgifter.searchPlaceholder')}
-                className="rounded-md border border-input bg-background px-3 py-2 w-56"
+                className="rounded-md border border-input bg-background px-3 py-2 w-full sm:w-56"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
               />
