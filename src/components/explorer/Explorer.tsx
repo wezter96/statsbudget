@@ -13,16 +13,13 @@ import YearRangeSlider from './YearRangeSlider';
 import BudgetPieTable from './BudgetPieTable';
 import CategoryFilter from './CategoryFilter';
 import TimeSeriesChart from './TimeSeriesChart';
-import MobileBarList from './MobileBarList';
 import BudgetBalanceChart from './BudgetBalanceChart';
 import PartyBudgetComparison from './PartyBudgetComparison';
 import { TreemapSkeleton, ChartSkeleton } from '@/components/Skeletons';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { useActiveLang, formatMkrLocalized, localizeAreaName } from '@/lib/area-i18n';
 
 const Explorer = () => {
   const { t } = useTranslation();
-  const isMobile = useIsMobile();
   const lang = useActiveLang();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -252,20 +249,12 @@ const Explorer = () => {
             {budgetLoading ? (
               <TreemapSkeleton />
             ) : pieRows.length > 0 ? (
-              isMobile ? (
-                <MobileBarList
-                  data={pieRows.map(d => ({ area: d.area, value: d.value, pct: d.pct }))}
-                  mode={mode}
-                  onAreaClick={handleAreaClick}
-                />
-              ) : (
-                <BudgetPieTable
-                  rows={pieRows}
-                  mode={mode}
-                  year={selectedYear}
-                  yearData={yearData}
-                />
-              )
+              <BudgetPieTable
+                rows={pieRows}
+                mode={mode}
+                year={selectedYear}
+                yearData={yearData}
+              />
             ) : (
               <p className="text-center text-muted-foreground py-12">{t('explorer.noData')}</p>
             )}
