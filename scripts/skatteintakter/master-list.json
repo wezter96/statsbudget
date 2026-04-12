@@ -1,0 +1,346 @@
+[
+  {
+    "code": "1100",
+    "parent_code": null,
+    "name_sv": "Direkta skatter på arbete",
+    "name_en": "Direct taxes on labour",
+    "description_sv": "Inkomstskatter som betalas direkt av löntagare och egenföretagare.",
+    "sort_order": 1
+  },
+  {
+    "code": "1111",
+    "parent_code": "1100",
+    "name_sv": "Statlig inkomstskatt",
+    "name_en": "State income tax",
+    "description_sv": "Skatt på förvärvsinkomster som överstiger skiktgränsen (värnskatt avskaffades 2020).",
+    "sort_order": 2
+  },
+  {
+    "code": "1115",
+    "parent_code": "1100",
+    "name_sv": "Kommunalskatteavräkning",
+    "name_en": "Municipal tax settlement",
+    "description_sv": "Statens avräkning mot kommunerna för kommunal inkomstskatt inbetald till skattemyndigheten.",
+    "sort_order": 3
+  },
+  {
+    "code": "1120",
+    "parent_code": "1100",
+    "name_sv": "Allmän pensionsavgift",
+    "name_en": "General pension contribution",
+    "description_sv": "Avgift på förvärvsinkomster som finansierar det allmänna pensionssystemet.",
+    "sort_order": 4
+  },
+  {
+    "code": "1130",
+    "parent_code": "1100",
+    "name_sv": "Artistskatt",
+    "name_en": "Artist tax",
+    "description_sv": "Källskatt på ersättningar till utländska artister och idrottsmän som uppträder i Sverige.",
+    "sort_order": 5
+  },
+  {
+    "code": "1200",
+    "parent_code": null,
+    "name_sv": "Indirekta skatter på arbete",
+    "name_en": "Indirect taxes on labour",
+    "description_sv": "Avgifter och skatter kopplade till anställning och egenföretagande.",
+    "sort_order": 6
+  },
+  {
+    "code": "1210",
+    "parent_code": "1200",
+    "name_sv": "Arbetsgivaravgifter",
+    "name_en": "Employer social contributions",
+    "description_sv": "Lagstadgade avgifter som arbetsgivare betalar baserat på utbetalda löner.",
+    "sort_order": 7
+  },
+  {
+    "code": "1220",
+    "parent_code": "1200",
+    "name_sv": "Egenavgifter",
+    "name_en": "Self-employment contributions",
+    "description_sv": "Socialavgifter som egenföretagare betalar på sin inkomst av näringsverksamhet.",
+    "sort_order": 8
+  },
+  {
+    "code": "1240",
+    "parent_code": "1200",
+    "name_sv": "Särskild löneskatt",
+    "name_en": "Special payroll tax",
+    "description_sv": "Skatt på pensionskostnader och ersättningar som inte är föremål för sociala avgifter.",
+    "sort_order": 9
+  },
+  {
+    "code": "1300",
+    "parent_code": null,
+    "name_sv": "Skatt på kapital",
+    "name_en": "Tax on capital",
+    "description_sv": "Skatter på kapitalinkomster, företagsvinster och kapitalinnehav.",
+    "sort_order": 10
+  },
+  {
+    "code": "1310",
+    "parent_code": "1300",
+    "name_sv": "Skatt på kapitalinkomster",
+    "name_en": "Tax on capital income",
+    "description_sv": "Skatt på räntor, utdelningar och kapitalvinster för privatpersoner (30 % flat rate).",
+    "sort_order": 11
+  },
+  {
+    "code": "1320",
+    "parent_code": "1300",
+    "name_sv": "Skatt på företagsvinster",
+    "name_en": "Corporate income tax",
+    "description_sv": "Bolagsskatt på juridiska personers inkomst av näringsverksamhet.",
+    "sort_order": 12
+  },
+  {
+    "code": "1330",
+    "parent_code": "1300",
+    "name_sv": "Kupongskatt",
+    "name_en": "Dividend withholding tax",
+    "description_sv": "Källskatt på utdelningar till utländska aktieägare i svenska bolag.",
+    "sort_order": 13
+  },
+  {
+    "code": "1340",
+    "parent_code": "1300",
+    "name_sv": "Stämpelskatt",
+    "name_en": "Stamp duty",
+    "description_sv": "Skatt vid lagfart och inteckning av fast egendom samt pantbrev.",
+    "sort_order": 14
+  },
+  {
+    "code": "1350",
+    "parent_code": "1300",
+    "name_sv": "Fastighetsskatt och fastighetsavgift",
+    "name_en": "Property tax",
+    "description_sv": "Kommunal fastighetsavgift och statlig fastighetsskatt på kommersiella fastigheter.",
+    "sort_order": 15
+  },
+  {
+    "code": "1400",
+    "parent_code": null,
+    "name_sv": "Skatt på konsumtion och insatsvaror",
+    "name_en": "Tax on consumption and inputs",
+    "description_sv": "Indirekta skatter på varor och tjänster inklusive mervärdesskatt och punktskatter.",
+    "sort_order": 16
+  },
+  {
+    "code": "1411",
+    "parent_code": "1400",
+    "name_sv": "Mervärdesskatt",
+    "name_en": "Value added tax (VAT)",
+    "description_sv": "Generell konsumtionsskatt på mervärdet i varje led av produktions- och distributionskedjan.",
+    "sort_order": 17
+  },
+  {
+    "code": "1420",
+    "parent_code": "1400",
+    "name_sv": "Tobaksskatt",
+    "name_en": "Tobacco tax",
+    "description_sv": "Punktskatt på cigaretter, cigarrer, röktobak och nikotinprodukter.",
+    "sort_order": 18
+  },
+  {
+    "code": "1430",
+    "parent_code": "1400",
+    "name_sv": "Alkoholskatt",
+    "name_en": "Alcohol tax",
+    "description_sv": "Punktskatt på öl, vin, sprit och andra alkoholhaltiga drycker.",
+    "sort_order": 19
+  },
+  {
+    "code": "1440",
+    "parent_code": "1400",
+    "name_sv": "Energiskatt",
+    "name_en": "Energy tax",
+    "description_sv": "Skatt på el och bränslen som inte är belagda med koldioxidskatt.",
+    "sort_order": 20
+  },
+  {
+    "code": "1450",
+    "parent_code": "1400",
+    "name_sv": "Koldioxidskatt",
+    "name_en": "Carbon dioxide tax",
+    "description_sv": "Skatt på fossila bränslen baserad på koldioxidutsläpp.",
+    "sort_order": 21
+  },
+  {
+    "code": "1460",
+    "parent_code": "1400",
+    "name_sv": "Fordonsskatt",
+    "name_en": "Vehicle tax",
+    "description_sv": "Årlig skatt på motorfordon baserad på fordonets vikt, bränsletyp och utsläpp.",
+    "sort_order": 22
+  },
+  {
+    "code": "1470",
+    "parent_code": "1400",
+    "name_sv": "Övriga skatter på konsumtion och insatsvaror",
+    "name_en": "Other taxes on consumption and inputs",
+    "description_sv": "Övriga punktskatter inklusive reklamskatt, lotteriskatt och avfallsskatt.",
+    "sort_order": 23
+  },
+  {
+    "code": "1500",
+    "parent_code": null,
+    "name_sv": "Restförda och övriga skatter",
+    "name_en": "Residual and other taxes",
+    "description_sv": "Skatter som inte kan hänföras till övriga inkomsttyper, inklusive restförda belopp.",
+    "sort_order": 24
+  },
+  {
+    "code": "1510",
+    "parent_code": "1500",
+    "name_sv": "Restförda skatter m.m.",
+    "name_en": "Residual taxes",
+    "description_sv": "Skatter som fastställts men ännu inte betalats in, inklusive återvunna belopp.",
+    "sort_order": 25
+  },
+  {
+    "code": "1520",
+    "parent_code": "1500",
+    "name_sv": "Övriga skatter",
+    "name_en": "Other taxes",
+    "description_sv": "Diverse skatteintäkter som inte klassificeras under övriga inkomsttyper.",
+    "sort_order": 26
+  },
+  {
+    "code": "2000",
+    "parent_code": null,
+    "name_sv": "Inkomster av statens verksamhet",
+    "name_en": "Income from state activities",
+    "description_sv": "Inkomster från statliga myndigheters och affärsverks verksamhet samt utdelningar från statliga bolag.",
+    "sort_order": 27
+  },
+  {
+    "code": "2100",
+    "parent_code": "2000",
+    "name_sv": "Rörelseöverskott, statliga affärsverk m.m.",
+    "name_en": "Surplus from state enterprises",
+    "description_sv": "Överskott från affärsverk som Luftfartsverket och Sjöfartsverket.",
+    "sort_order": 28
+  },
+  {
+    "code": "2200",
+    "parent_code": "2000",
+    "name_sv": "Överskott av statens fastighetsförvaltning",
+    "name_en": "Surplus from state property management",
+    "description_sv": "Intäkter från statens fastighetsinnehav via Statens Fastighetsverk och Fortifikationsverket.",
+    "sort_order": 29
+  },
+  {
+    "code": "2300",
+    "parent_code": "2000",
+    "name_sv": "Ränteinkomster m.m.",
+    "name_en": "Interest income",
+    "description_sv": "Ränteintäkter på statens fordringar och placeringar.",
+    "sort_order": 30
+  },
+  {
+    "code": "2400",
+    "parent_code": "2000",
+    "name_sv": "Aktieutdelning m.m.",
+    "name_en": "Dividend income",
+    "description_sv": "Utdelningar från statligt ägda bolag som LKAB, Vattenfall och Telia.",
+    "sort_order": 31
+  },
+  {
+    "code": "2500",
+    "parent_code": "2000",
+    "name_sv": "Offentligrättsliga avgifter",
+    "name_en": "Public law fees",
+    "description_sv": "Avgifter som myndigheterna tar ut med stöd av lag, t.ex. tillståndsavgifter.",
+    "sort_order": 32
+  },
+  {
+    "code": "2700",
+    "parent_code": "2000",
+    "name_sv": "Övriga inkomster av statens verksamhet",
+    "name_en": "Other income from state activities",
+    "description_sv": "Övriga intäkter från statliga verksamheter som inte klassificeras ovan.",
+    "sort_order": 33
+  },
+  {
+    "code": "3000",
+    "parent_code": null,
+    "name_sv": "Inkomster av försåld egendom",
+    "name_en": "Income from sold property",
+    "description_sv": "Intäkter från försäljning av statliga tillgångar inklusive aktier och fastigheter.",
+    "sort_order": 34
+  },
+  {
+    "code": "3100",
+    "parent_code": "3000",
+    "name_sv": "Försäljning av statliga aktier m.m.",
+    "name_en": "Sale of state-owned shares",
+    "description_sv": "Intäkter från avyttring av statens innehav i börsnoterade och onoterade bolag.",
+    "sort_order": 35
+  },
+  {
+    "code": "3200",
+    "parent_code": "3000",
+    "name_sv": "Övriga inkomster av försåld egendom",
+    "name_en": "Other income from sold property",
+    "description_sv": "Intäkter från försäljning av fastigheter och övrig statlig egendom.",
+    "sort_order": 36
+  },
+  {
+    "code": "6000",
+    "parent_code": null,
+    "name_sv": "Bidrag m.m. från EU",
+    "name_en": "Contributions from the EU",
+    "description_sv": "Bidrag och återflöden från EU:s budget inklusive jordbruksstöd och strukturfonder.",
+    "sort_order": 37
+  },
+  {
+    "code": "6100",
+    "parent_code": "6000",
+    "name_sv": "Bidrag från EU:s jordbruksfonder",
+    "name_en": "EU agricultural fund contributions",
+    "description_sv": "Stöd från den gemensamma jordbrukspolitiken (CAP) via EJFLU och EGFJ.",
+    "sort_order": 38
+  },
+  {
+    "code": "6200",
+    "parent_code": "6000",
+    "name_sv": "Bidrag från EU:s strukturfonder",
+    "name_en": "EU structural fund contributions",
+    "description_sv": "Medel från Europeiska regionalfonden och Europeiska socialfonden.",
+    "sort_order": 39
+  },
+  {
+    "code": "6900",
+    "parent_code": "6000",
+    "name_sv": "Övriga bidrag från EU",
+    "name_en": "Other EU contributions",
+    "description_sv": "Övriga EU-bidrag inklusive Horisont, Fonden för inre säkerhet och andra program.",
+    "sort_order": 40
+  },
+  {
+    "code": "7000",
+    "parent_code": null,
+    "name_sv": "Avskrivningar och amorteringar m.m.",
+    "name_en": "Depreciation and amortization",
+    "description_sv": "Bokföringsmässiga poster för avskrivningar på statens anläggningstillgångar och amorteringar på lån.",
+    "sort_order": 41
+  },
+  {
+    "code": "7100",
+    "parent_code": "7000",
+    "name_sv": "Återbetalning av lån",
+    "name_en": "Loan repayments",
+    "description_sv": "Amorteringar på lån utgivna av staten, t.ex. studielån och exportkrediter.",
+    "sort_order": 42
+  },
+  {
+    "code": "7200",
+    "parent_code": "7000",
+    "name_sv": "Övriga avskrivningar m.m.",
+    "name_en": "Other depreciation",
+    "description_sv": "Avskrivningar på materiella och immateriella anläggningstillgångar i statens ägo.",
+    "sort_order": 43
+  }
+]
