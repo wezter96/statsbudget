@@ -107,15 +107,20 @@ const TimeSeriesChart = ({ series, mode, yearFrom, yearTo }: TimeSeriesChartProp
       },
     },
     grid: {
-      left: 60,
-      right: 20,
+      left: window.innerWidth < 640 ? 40 : 60,
+      right: window.innerWidth < 640 ? 8 : 20,
       top: 20,
       bottom: 36,
     },
     xAxis: {
       type: 'category',
       data: years.map(String),
-      axisLabel: { fontFamily: 'Inter', fontSize: 11, color: CHROME.textMuted },
+      axisLabel: {
+        fontFamily: 'Inter',
+        fontSize: window.innerWidth < 640 ? 10 : 11,
+        color: CHROME.textMuted,
+        interval: window.innerWidth < 640 ? Math.max(1, Math.floor(years.length / 6)) : undefined,
+      },
       axisLine: { lineStyle: { color: CHROME.border } },
     },
     yAxis: {
@@ -139,7 +144,7 @@ const TimeSeriesChart = ({ series, mode, yearFrom, yearTo }: TimeSeriesChartProp
         option={option}
         notMerge={true}
         lazyUpdate={false}
-        style={{ height: '400px', width: '100%' }}
+        style={{ height: window.innerWidth < 640 ? '280px' : '400px', width: '100%' }}
         aria-label="Tidsserie över budgetdata"
       />
       <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">

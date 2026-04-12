@@ -10,7 +10,7 @@ const Hero = () => {
   });
 
   return (
-    <section className="px-4 pt-8 pb-6 sm:pt-12 sm:pb-8">
+    <section className="pt-8 pb-6 sm:pt-12 sm:pb-8">
       <div className="container max-w-3xl">
         <h1 className="font-display text-[38px] font-extrabold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-[56px]">
           {t('hero.heading')}
