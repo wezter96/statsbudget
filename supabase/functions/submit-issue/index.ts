@@ -5,7 +5,7 @@
 //
 // Required secrets (set via `supabase secrets set`):
 //   GITHUB_TOKEN  — fine-grained PAT with Issues: read+write on the repo
-//   GITHUB_REPO   — "owner/repo" target, e.g. "wezter96/budgetkoll-feedback"
+//   GITHUB_REPO   — "owner/repo" target, e.g. "wezter96/statsbudget-feedback"
 
 type Payload = {
   category?: string;

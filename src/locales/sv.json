@@ -110,6 +110,111 @@
       "description": "Beskrivning",
       "amount": "Belopp",
       "area": "Relaterat område"
+    },
+    "allHeading": "Alla skatteutgifter",
+    "category": "Kategori",
+    "allCategories": "Alla kategorier",
+    "search": "Sök",
+    "searchPlaceholder": "t.ex. ROT, ränteavdrag...",
+    "filterCount": "{{count}} av {{total}} poster",
+    "noMatch": "Inga skatteutgifter matchar din sökning.",
+    "comparison": {
+      "heading": "Vem gynnas? En jämförelse",
+      "intro": "Många skatteutgifter kan användas av alla, men de ger oproportionerligt mycket till den som tjänar bra eller äger bostad och kapital — ju högre inkomst och dyrare bostad, desto större skattelättnad i kronor. Här jämför vi dessa med behovsprövade bidrag till de fattiga och kostnader för migration. Klicka på en rad för att läsa mer.",
+      "ratio": "För varje krona i behovsprövade bidrag till de fattiga går ungefär <strong>3 kronor</strong> i skattesubventioner som oproportionerligt gynnar höginkomsttagare.",
+      "source": "Källa",
+      "post": "Post",
+      "noteTitle": "Notera:",
+      "note": "Skatteutgifter och bidrag är inte direkt jämförbara — skatteutgifter minskar statens intäkter medan bidrag är faktiska utgifter. Jämförelsen illustrerar storleksordningen.",
+      "dataNote": "Belopp för behovsprövade bidrag är uppskattningar baserade på senaste tillgängliga data från Socialstyrelsen, Pensionsmyndigheten, Försäkringskassan och budgetpropositionen. Migrationskostnader avser UO 8 och UO 13 i statsbudgeten.",
+      "cat": {
+        "rich": {
+          "title": "Skatteutgifter som oproportionerligt gynnar höginkomsttagare och förmögna",
+          "barLabel": "Höginkomsttagare"
+        },
+        "poor": {
+          "title": "Behovsprövade bidrag till de fattiga",
+          "barLabel": "Fattiga"
+        },
+        "migration": {
+          "title": "Migration (UO 8 + UO 13)",
+          "barLabel": "Migration"
+        }
+      },
+      "items": {
+        "ranteavdrag": {
+          "name": "Ränteavdrag (hushåll)",
+          "detail": "Skattereduktion på 30 % av ränteutgifter. Ju dyrare bostad och högre belåning, desto större avdrag. En villa belånad med 10 Mkr ger ~150 000 kr/år i skattelättnad — en hyresgäst får noll."
+        },
+        "avkastningHem": {
+          "name": "Avkastning eget hem",
+          "detail": "Att bo i eget hus ger en skattefri \"avkastning\" (man slipper betala hyra till sig själv). Denna förmån beskattas inte alls sedan 2007, trots att den i nationalräkenskaperna räknas som inkomst. Dyrare hus = större osynlig subvention."
+        },
+        "tolvregler": {
+          "name": "Kapitalvinst kvalificerade andelar (3:12)",
+          "detail": "Fåmansföretagare kan genom 3:12-reglerna ta ut vinst beskattad med 20 % kapitalskatt istället för som lön med marginalskatt upp till ~55 %. Riksrevisionen har konstaterat att reglerna är generösa och främst gynnar höginkomsttagare."
+        },
+        "rot": {
+          "name": "ROT-avdrag",
+          "detail": "Skattereduktion på 30 % av arbetskostnaden vid renovering av bostad, max 75 000 kr/år. Kräver att man äger sin bostad och har råd med renovering. SCB:s statistik visar att nyttjandegraden ökar kraftigt med inkomst."
+        },
+        "rut": {
+          "name": "RUT-avdrag",
+          "detail": "Skattereduktion för hushållsarbete (städning, barnpassning m.m.), max 75 000 kr/år. Skatteverkets statistik visar att hushåll med inkomster över 600 000 kr står för merparten av nyttjandet."
+        },
+        "kapitalvinstBostad": {
+          "name": "Kapitalvinst vid bostadsförsäljning",
+          "detail": "Vinst vid försäljning av privatbostad beskattas med 22 % (genom kvotering till 22/30) istället för normalskattesatsen 30 % för kapital. Större bostadsvinst = mer skattesubvention i absoluta tal."
+        },
+        "avkastningBrf": {
+          "name": "Avkastning bostadsrättsfastighet",
+          "detail": "Samma princip som eget hem — bostadsrättsägare beskattas inte för den implicita avkastningen av sitt boende. Dyrare BRF = större skattefri förmån."
+        },
+        "miljobilar": {
+          "name": "Nedsatt förmånsvärde miljöbilar",
+          "detail": "Förmånsbilar beskattas med reducerat förmånsvärde om de klassas som miljöanpassade. Förmånsbilar är vanligast bland tjänstemän med hög lön, och de dyraste elbilarna (Tesla Model S/X, BMW iX) ger störst nedsättning."
+        },
+        "uppskov": {
+          "name": "Uppskov kapitalvinstskatt bostad",
+          "detail": "Vid bostadsbyte kan man skjuta upp skatten på vinsten. Fungerar i praktiken som ett räntefritt lån från staten — mest värdefullt vid stora vinster (miljonbelopp) i storstadsområden."
+        },
+        "onoterade": {
+          "name": "Kapitalvinst onoterade andelar",
+          "detail": "Kapitalvinst på icke-kvalificerade andelar i onoterade bolag beskattas med 25 % istället för 30 %. Relevant enbart för de som har kapital att investera i onoterade bolag."
+        },
+        "ekonomisktBistand": {
+          "name": "Ekonomiskt bistånd (socialbidrag)",
+          "detail": "Sista skyddsnätet — helt behovsprövat försörjningsstöd från kommunen. Man måste ha uttömt alla andra möjligheter (sparande, a-kassa, sjukpenning) först. Riksnormen 2024 för en ensamstående: 4 180 kr/mån för personliga kostnader."
+        },
+        "bostadstillagg": {
+          "name": "Bostadstillägg pensionärer",
+          "detail": "Behovsprövat tillägg till pensionärer med låg inkomst för att klara bostadskostnaden. Minskar krona för krona med ökad inkomst. Max ~7 500 kr/mån."
+        },
+        "aldreforsorjning": {
+          "name": "Äldreförsörjningsstöd",
+          "detail": "Grundtrygghet för pensionärer med mycket låg eller ingen pension, t.ex. personer som invandrat sent i livet. Garanterar en miniminivå för boende och levnad. Prövas mot all inkomst."
+        },
+        "bostadsbidrag": {
+          "name": "Bostadsbidrag",
+          "detail": "Inkomstprövat bidrag till barnfamiljer med låg inkomst och unga (18–28 år) utan barn. Beräknas utifrån inkomst, bostadskostnad och antal barn. Fasas ut helt vid medelhög inkomst."
+        },
+        "etablering": {
+          "name": "Etableringsersättning (nyanlända)",
+          "detail": "Ersättning under de första 2–3 åren i etableringsprogrammet för nyanlända flyktingar. Villkorad av deltagande i SFI, samhällsorientering och arbetsmarknadsinsatser. 308 kr/dag vid heltid."
+        },
+        "underhallsstod": {
+          "name": "Underhållsstöd",
+          "detail": "Försäkringskassan betalar underhåll till barn vars ena förälder inte betalar. Max 1 723 kr/mån per barn. Statens kostnad är nettot efter återkrav från den betalningsskyldiga föräldern."
+        },
+        "uo8": {
+          "name": "UO 8 — Migration",
+          "detail": "Migrationsverkets verksamhet: asylprövning, mottagning, förvar, återvändande, arbetstillstånd och medborgarskap. Inkluderar boende och dagersättning för asylsökande."
+        },
+        "uo13": {
+          "name": "UO 13 — Integration och jämställdhet",
+          "detail": "Kommunersättningar vid flyktingmottagande, etableringsinsatser, samhällsorientering, tolktjänster och hemutrustningslån. Merparten är statlig ersättning till kommuner och regioner för faktiska kostnader."
+        }
+      }
     }
   },
   "footer": {

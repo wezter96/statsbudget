@@ -110,6 +110,111 @@
       "description": "Description",
       "amount": "Amount",
       "area": "Related area"
+    },
+    "allHeading": "All tax expenditures",
+    "category": "Category",
+    "allCategories": "All categories",
+    "search": "Search",
+    "searchPlaceholder": "e.g. ROT, mortgage...",
+    "filterCount": "{{count}} of {{total}} items",
+    "noMatch": "No tax expenditures match your search.",
+    "comparison": {
+      "heading": "Who benefits? A comparison",
+      "intro": "Many tax expenditures are available to everyone, but they disproportionately benefit those with high incomes or who own property and capital — the higher the income and more expensive the home, the larger the tax break in absolute terms. Here we compare these with means-tested benefits for the poor and migration costs. Click a row to read more.",
+      "ratio": "For every krona in means-tested benefits for the poor, roughly <strong>3 kronor</strong> go to tax subsidies that disproportionately benefit high earners.",
+      "source": "Source",
+      "post": "Item",
+      "noteTitle": "Note:",
+      "note": "Tax expenditures and benefits are not directly comparable — tax expenditures reduce state revenue while benefits are actual spending. The comparison illustrates the order of magnitude.",
+      "dataNote": "Amounts for means-tested benefits are estimates based on the latest available data from Socialstyrelsen, Pensionsmyndigheten, Försäkringskassan and the budget bill. Migration costs refer to expenditure areas 8 and 13 in the state budget.",
+      "cat": {
+        "rich": {
+          "title": "Tax expenditures that disproportionately benefit high earners and the wealthy",
+          "barLabel": "High earners"
+        },
+        "poor": {
+          "title": "Means-tested benefits for the poor",
+          "barLabel": "Poor"
+        },
+        "migration": {
+          "title": "Migration (EA 8 + EA 13)",
+          "barLabel": "Migration"
+        }
+      },
+      "items": {
+        "ranteavdrag": {
+          "name": "Mortgage interest deduction (households)",
+          "detail": "30% tax reduction on interest payments. The more expensive the home and higher the mortgage, the larger the deduction. A home mortgaged at 10M SEK yields ~150,000 SEK/year in tax relief — a renter gets nothing."
+        },
+        "avkastningHem": {
+          "name": "Imputed return on owner-occupied homes",
+          "detail": "Living in your own home provides a tax-free \"return\" (you avoid paying rent to yourself). This benefit has been entirely untaxed since 2007, despite being counted as income in national accounts. More expensive home = larger invisible subsidy."
+        },
+        "tolvregler": {
+          "name": "Capital gains on qualified shares (3:12 rules)",
+          "detail": "Owners of closely held companies can extract profits taxed at 20% capital gains instead of as salary with marginal tax up to ~55%. The National Audit Office has found these rules generous and primarily benefiting high earners."
+        },
+        "rot": {
+          "name": "ROT deduction (home renovation)",
+          "detail": "30% tax reduction on labor costs for home renovation, max 75,000 SEK/year. Requires homeownership and ability to afford renovations. Statistics Sweden data shows utilization rises sharply with income."
+        },
+        "rut": {
+          "name": "RUT deduction (household services)",
+          "detail": "Tax reduction for household services (cleaning, childcare, etc.), max 75,000 SEK/year. Tax Agency statistics show that households earning over 600,000 SEK account for the majority of usage."
+        },
+        "kapitalvinstBostad": {
+          "name": "Capital gains on home sales",
+          "detail": "Profit from selling a private home is taxed at 22% (via quota to 22/30) instead of the standard 30% capital rate. Larger home gains = more tax subsidy in absolute terms."
+        },
+        "avkastningBrf": {
+          "name": "Imputed return on co-op apartments",
+          "detail": "Same principle as owner-occupied homes — co-op owners are not taxed on the implicit return of their housing. More expensive co-op = larger tax-free benefit."
+        },
+        "miljobilar": {
+          "name": "Reduced benefit value for eco-friendly cars",
+          "detail": "Company cars are taxed at a reduced benefit value if classified as eco-friendly. Company cars are most common among white-collar workers with high salaries, and the most expensive EVs (Tesla Model S/X, BMW iX) receive the largest reduction."
+        },
+        "uppskov": {
+          "name": "Deferred capital gains tax on homes",
+          "detail": "When switching homes, you can defer the tax on the gain. Effectively an interest-free loan from the state — most valuable for large gains (millions) in metropolitan areas."
+        },
+        "onoterade": {
+          "name": "Capital gains on unlisted shares",
+          "detail": "Capital gains on non-qualified shares in unlisted companies are taxed at 25% instead of 30%. Only relevant for those with capital to invest in unlisted companies."
+        },
+        "ekonomisktBistand": {
+          "name": "Social assistance (welfare)",
+          "detail": "The last safety net — fully means-tested subsistence support from the municipality. All other resources (savings, unemployment insurance, sick pay) must be exhausted first. 2024 standard for a single person: 4,180 SEK/month for personal costs."
+        },
+        "bostadstillagg": {
+          "name": "Housing supplement for pensioners",
+          "detail": "Means-tested supplement for low-income pensioners to cover housing costs. Reduced krona for krona with increased income. Max ~7,500 SEK/month."
+        },
+        "aldreforsorjning": {
+          "name": "Elderly maintenance support",
+          "detail": "Basic security for pensioners with very low or no pension, e.g. people who immigrated late in life. Guarantees a minimum standard of living. Tested against all income."
+        },
+        "bostadsbidrag": {
+          "name": "Housing allowance",
+          "detail": "Income-tested benefit for low-income families with children and young people (18–28) without children. Calculated based on income, housing cost and number of children. Phases out entirely at median income."
+        },
+        "etablering": {
+          "name": "Settlement benefit (new arrivals)",
+          "detail": "Benefit during the first 2–3 years in the settlement program for newly arrived refugees. Conditional on participation in Swedish language courses, civic orientation and labor market programs. 308 SEK/day at full time."
+        },
+        "underhallsstod": {
+          "name": "Child maintenance support",
+          "detail": "Försäkringskassan pays child maintenance when one parent fails to pay. Max 1,723 SEK/month per child. The state's cost is the net after recovery from the liable parent."
+        },
+        "uo8": {
+          "name": "EA 8 — Migration",
+          "detail": "Swedish Migration Agency operations: asylum processing, reception, detention, return, work permits and citizenship. Includes housing and daily allowance for asylum seekers."
+        },
+        "uo13": {
+          "name": "EA 13 — Integration and equality",
+          "detail": "Municipal reimbursements for refugee reception, settlement measures, civic orientation, interpretation services and home furnishing loans. Most of it is state reimbursement to municipalities and regions for actual costs."
+        }
+      }
     }
   },
   "footer": {
