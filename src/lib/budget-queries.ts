@@ -1,5 +1,8 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { DimYear, DimArea, DimAnslag, DimParty, FactBudget, FactHistorical, DisplayMode } from './supabase-types';
+import type {
+  DimYear, DimArea, DimAnslag, DimParty, FactBudget, FactHistorical, DisplayMode,
+  DimSkatteutgift, FactSkatteutgift,
+} from './supabase-types';
 
 // The tables exist in the DB but aren't in the auto-generated types yet.
 // We cast to any for .from() calls and type the results manually.
@@ -98,6 +101,26 @@ export async function getHistoricalYearMeta(year: number): Promise<DimYear | nul
   const { data, error } = await db.from('dim_year').select('*').eq('year_id', year).maybeSingle();
   if (error) throw error;
   return data as DimYear | null;
+}
+
+// ---------- Skatteutgifter (tax expenditures) ----------
+
+export async function getSkatteutgifter(): Promise<DimSkatteutgift[]> {
+  const { data, error } = await db.from('dim_skatteutgift').select('*').order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as DimSkatteutgift[];
+}
+
+export async function getSkatteutgiftFacts(year: number): Promise<FactSkatteutgift[]> {
+  const { data, error } = await db.from('fact_skatteutgift').select('*').eq('year_id', year);
+  if (error) throw error;
+  return (data ?? []) as FactSkatteutgift[];
+}
+
+export async function getSkatteutgiftTimeSeries(): Promise<FactSkatteutgift[]> {
+  const { data, error } = await db.from('fact_skatteutgift').select('*').order('year_id', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as FactSkatteutgift[];
 }
 
 export function convertAmount(amount: number, mode: DisplayMode, yearData: DimYear, totalForYear?: number): number {

@@ -7,10 +7,20 @@ import {
   SheetTitle,
   SheetDescription,
 } from '@/components/ui/sheet';
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { ChatMessages } from './ChatMessages';
 import { ChatInput } from './ChatInput';
 import { useChat } from './use-chat';
+import { CHAT_MODEL_OPTIONS } from './models';
 
 interface ChatDrawerProps {
   open: boolean;
@@ -19,7 +29,9 @@ interface ChatDrawerProps {
 
 export function ChatDrawer({ open, onOpenChange }: ChatDrawerProps) {
   const { t } = useTranslation();
-  const { messages, status, sendMessage, clear, error } = useChat();
+  const { messages, status, sendMessage, clear, error, modelId, setModelId } = useChat();
+  const groqModels = CHAT_MODEL_OPTIONS.filter((m) => m.provider === 'groq');
+  const nvidiaModels = CHAT_MODEL_OPTIONS.filter((m) => m.provider === 'nvidia');
 
   const suggestionsRaw = t('chat.suggestions', { returnObjects: true }) as unknown;
   const suggestions: string[] = Array.isArray(suggestionsRaw) ? (suggestionsRaw as string[]) : [];
@@ -32,8 +44,10 @@ export function ChatDrawer({ open, onOpenChange }: ChatDrawerProps) {
         side="right"
         className="flex w-full flex-col gap-0 p-0 sm:max-w-[420px] backdrop-blur supports-[backdrop-filter]:bg-background/95"
       >
-        <SheetHeader className="border-b border-border px-4 py-3 text-left">
-          <div className="flex items-center justify-between gap-2">
+        <SheetHeader className="border-b border-border px-4 py-3 pr-12 text-left">
+          {/* pr-12 reserves space for the Sheet's built-in absolute close X
+              in the top-right corner, so nothing we render here overlaps it. */}
+          <div className="flex items-start justify-between gap-2">
             <div className="min-w-0">
               <SheetTitle className="font-display text-base">{t('chat.title')}</SheetTitle>
               <SheetDescription className="text-[11px]">
@@ -45,13 +59,51 @@ export function ChatDrawer({ open, onOpenChange }: ChatDrawerProps) {
                 variant="ghost"
                 size="sm"
                 onClick={clear}
-                className="h-8 gap-1 text-xs"
+                className="h-8 shrink-0 gap-1 text-xs"
                 aria-label={t('chat.clear')}
               >
                 <Trash2 className="h-3.5 w-3.5" />
-                {t('chat.clear')}
+                <span className="hidden sm:inline">{t('chat.clear')}</span>
               </Button>
             )}
+          </div>
+          <div className="mt-2 flex items-center gap-2">
+            <label className="text-[10px] uppercase tracking-wide text-muted-foreground">
+              {t('chat.model')}
+            </label>
+            <Select value={modelId} onValueChange={setModelId}>
+              <SelectTrigger className="h-7 flex-1 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="max-h-80">
+                <SelectGroup>
+                  <SelectLabel className="text-[10px] uppercase">Groq</SelectLabel>
+                  {groqModels.map((m) => (
+                    <SelectItem key={m.id} value={m.id} className="text-xs">
+                      <span className="font-medium">{m.label}</span>
+                      {m.hint && (
+                        <span className="ml-2 text-[10px] text-muted-foreground">
+                          {m.hint}
+                        </span>
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+                <SelectGroup>
+                  <SelectLabel className="text-[10px] uppercase">NVIDIA</SelectLabel>
+                  {nvidiaModels.map((m) => (
+                    <SelectItem key={m.id} value={m.id} className="text-xs">
+                      <span className="font-medium">{m.label}</span>
+                      {m.hint && (
+                        <span className="ml-2 text-[10px] text-muted-foreground">
+                          {m.hint}
+                        </span>
+                      )}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </SheetHeader>
 

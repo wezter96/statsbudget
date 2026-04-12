@@ -14,6 +14,25 @@ export interface DimYear {
   fiscal_year_label?: string | null;
 }
 
+export interface DimSkatteutgift {
+  skatteutgift_id: number;
+  code: string;
+  name_sv: string;
+  name_en: string | null;
+  description_sv: string | null;
+  description_en: string | null;
+  thematic_area_id: number | null;
+  sort_order: number;
+}
+
+export interface FactSkatteutgift {
+  fact_id: number;
+  year_id: number;
+  skatteutgift_id: number;
+  amount_mkr: number;
+  is_estimated: boolean;
+}
+
 export interface FactHistorical {
   fact_id: number;
   year_id: number;

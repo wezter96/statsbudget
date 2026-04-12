@@ -83,7 +83,27 @@
   "nav": {
     "explorer": "Utforska",
     "historical": "Historiskt",
+    "skatteutgifter": "Skatteutgifter",
     "about": "Om"
+  },
+  "skatteutgifter": {
+    "title": "Skatteutgifter",
+    "intro": "Skatteutgifter är skatteminskningar som sänker statens intäkter. De finns alltså inte som anslag i budgeten — de ligger på inkomstsidan under inkomsttitel 1700-serien.",
+    "disclosure": "ROT, RUT, ränteavdrag, ISK och jobbskatteavdrag är exempel på skatteutgifter. De minskar statens skatteintäkter i stället för att synas som anslag på utgiftssidan.",
+    "year": "År",
+    "totalLabel": "Totalt valt år",
+    "unit": "Mkr",
+    "estimated": "prognos",
+    "demoBadge": "DEMO:",
+    "noData": "Inga seedade siffror för valt år. Kör seedern med en CSV exporterad från regeringens skatteutgiftsbilaga för att fylla på data.",
+    "sourcesLabel": "Källor",
+    "caveat": "Beloppen kommer från regeringens skatteutgiftsbilaga (bilaga till budgetpropositionen). Vissa år är prognos, inte utfall.",
+    "col": {
+      "name": "Skatteutgift",
+      "description": "Beskrivning",
+      "amount": "Belopp",
+      "area": "Relaterat område"
+    }
   },
   "footer": {
     "tagline": "En oberoende visualisering av den svenska statsbudgeten. Baserad på officiell data från ESV, SCB och Riksdagen.",
@@ -130,6 +150,7 @@
     "toolUsed": "Hämtade data",
     "you": "Du",
     "assistant": "Statsbudget AI",
-    "reportErrorLink": "Rapportera problem"
+    "reportErrorLink": "Rapportera problem",
+    "model": "Modell"
   }
 }

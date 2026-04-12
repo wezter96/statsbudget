@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { CHAT_MODEL_OPTIONS, DEFAULT_CHAT_MODEL_ID } from './models';
 
 // Types ---------------------------------------------------------------------
 
@@ -24,6 +25,20 @@ interface UseChatOptions {
 }
 
 const DEFAULT_STORAGE_KEY = 'statsbudget-chat-v1';
+const MODEL_STORAGE_KEY = 'statsbudget-chat-model-v1';
+
+const VALID_MODEL_IDS = new Set(CHAT_MODEL_OPTIONS.map((m) => m.id));
+
+function loadModelId(): string {
+  if (typeof window === 'undefined') return DEFAULT_CHAT_MODEL_ID;
+  try {
+    const raw = window.localStorage.getItem(MODEL_STORAGE_KEY);
+    if (raw && VALID_MODEL_IDS.has(raw)) return raw;
+  } catch {
+    /* ignore */
+  }
+  return DEFAULT_CHAT_MODEL_ID;
+}
 
 function loadMessages(key: string): ChatMessage[] {
   if (typeof window === 'undefined') return [];
@@ -66,7 +81,20 @@ export function useChat(options: UseChatOptions = {}) {
   const [messages, setMessages] = useState<ChatMessage[]>(() => loadMessages(storageKey));
   const [status, setStatus] = useState<ChatStatus>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [modelId, setModelIdState] = useState<string>(() => loadModelId());
   const abortRef = useRef<AbortController | null>(null);
+
+  const setModelId = useCallback((id: string) => {
+    if (!VALID_MODEL_IDS.has(id)) return;
+    setModelIdState(id);
+    if (typeof window !== 'undefined') {
+      try {
+        window.localStorage.setItem(MODEL_STORAGE_KEY, id);
+      } catch {
+        /* ignore */
+      }
+    }
+  }, []);
 
   useEffect(() => {
     saveMessages(storageKey, messages);
@@ -120,6 +148,7 @@ export function useChat(options: UseChatOptions = {}) {
           body: JSON.stringify({
             messages: toWireMessages(base),
             lang: i18n.language === 'en' ? 'en' : 'sv',
+            model: modelId,
           }),
           signal: ac.signal,
         });
@@ -202,7 +231,7 @@ export function useChat(options: UseChatOptions = {}) {
         );
       }
     },
-    [messages, status, i18n.language],
+    [messages, status, i18n.language, modelId],
   );
 
   useEffect(
@@ -212,5 +241,5 @@ export function useChat(options: UseChatOptions = {}) {
     [],
   );
 
-  return { messages, status, error, sendMessage, clear };
+  return { messages, status, error, sendMessage, clear, modelId, setModelId };
 }

@@ -83,7 +83,27 @@
   "nav": {
     "explorer": "Explore",
     "historical": "Historical",
+    "skatteutgifter": "Tax expenditures",
     "about": "About"
+  },
+  "skatteutgifter": {
+    "title": "Tax expenditures",
+    "intro": "Tax expenditures are reductions in tax revenue that lower what the state collects. They are not appropriations in the budget — they live on the revenue side under inkomsttitel series 1700.",
+    "disclosure": "ROT, RUT, mortgage interest deduction, ISK and the in-work tax credit are examples of tax expenditures. They reduce state tax revenue instead of appearing as appropriations on the spending side.",
+    "year": "Year",
+    "totalLabel": "Total for selected year",
+    "unit": "M SEK",
+    "estimated": "estimate",
+    "demoBadge": "DEMO:",
+    "noData": "No seeded numbers for the selected year. Run the seeder with a CSV exported from the government's tax expenditure annex to populate data.",
+    "sourcesLabel": "Sources",
+    "caveat": "Amounts come from the government's tax expenditure annex (bilaga to the budget bill). Some years are estimates rather than outcomes.",
+    "col": {
+      "name": "Tax expenditure",
+      "description": "Description",
+      "amount": "Amount",
+      "area": "Related area"
+    }
   },
   "footer": {
     "tagline": "An independent visualization of the Swedish state budget. Based on official data from ESV, SCB and the Riksdag.",
@@ -130,6 +150,7 @@
     "toolUsed": "Fetched data",
     "you": "You",
     "assistant": "Statsbudget AI",
-    "reportErrorLink": "Report issue"
+    "reportErrorLink": "Report issue",
+    "model": "Model"
   }
 }

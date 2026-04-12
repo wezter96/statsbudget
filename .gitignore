@@ -1,3 +1,7 @@
+# PDFs/text dumps from regeringen.se — only keep the extracted CSV in git
+data/*.pdf
+data/*.txt
+
 # Logs
 logs
 *.log

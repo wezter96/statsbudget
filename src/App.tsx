@@ -10,6 +10,8 @@ import '@/lib/i18n';
 import Index from "./pages/Index";
 import Historical from "./pages/Historical";
 import About from "./pages/About";
+import Skatteutgifter from "./pages/Skatteutgifter";
+import DevTaxGaps from "./pages/DevTaxGaps";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,12 +29,20 @@ const App = () => (
             {/* Swedish (default, no prefix) */}
             <Route path="/" element={withLang(<Index />)} />
             <Route path="/historical" element={withLang(<Historical />)} />
+            <Route path="/skatteutgifter" element={withLang(<Skatteutgifter />)} />
             <Route path="/about" element={withLang(<About />)} />
 
             {/* English (/en prefix) */}
             <Route path="/en" element={withLang(<Index />)} />
             <Route path="/en/historical" element={withLang(<Historical />)} />
+            <Route path="/en/tax-expenditures" element={withLang(<Skatteutgifter />)} />
             <Route path="/en/about" element={withLang(<About />)} />
+
+            {/* DEV-only review pages — gated inside the component via
+                import.meta.env.DEV. In a prod build they render NotFound. */}
+            {import.meta.env.DEV && (
+              <Route path="/dev/tax-gaps" element={withLang(<DevTaxGaps />)} />
+            )}
 
             <Route path="*" element={<NotFound />} />
           </Routes>

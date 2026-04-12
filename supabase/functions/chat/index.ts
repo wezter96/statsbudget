@@ -10,59 +10,59 @@
 //   functions we should switch to a Postgres driver and `DATABASE_URL`
 //   (same pattern as scripts/seed.ts).
 //
-// LLM: Anthropic Claude via the public Messages API, with tool_use.
-// Streaming: TRUE token-level streaming. We open Anthropic's SSE
-// `?stream=true` endpoint, parse `text_delta` events token-by-token, and
-// relay each delta straight to the browser as `event: text`. Tool calls
-// are accumulated from `input_json_delta` events, executed when the model
-// pauses, and the tool_results are fed back into a fresh streaming call.
-// The browser sees a continuous stream of small `event: text` chunks plus
-// occasional `event: tool_use` pills and a final `event: done`.
+// LLM: provider chosen by CHAT_MODEL via the registry in providers.ts.
+//   - anthropic (default): native Messages API with tool_use SSE.
+//   - nvidia: NVIDIA NIM free endpoints, OpenAI-compatible chat.completions
+//     streaming. The NIM adapter in providers.ts translates Anthropic
+//     canonical shape ↔ OpenAI so the handler loop stays unchanged.
+//
+// Streaming: TRUE token-level streaming. For anthropic we parse
+// `text_delta` events token-by-token and accumulate tool_use from
+// `input_json_delta`. For nvidia we parse OpenAI `delta.content` and
+// accumulate `delta.tool_calls` by index. Both paths emit the same
+// canonical SSE protocol to the browser:
+//   event: text / event: tool_use / event: tool_result / event: done.
 //
 // Rate limit: per-IP in-memory cooldown. Trivially bypassed and resets on
 // function cold-start. For production, swap to Deno KV or a Postgres table
-// keyed by IP + minute bucket.
+// keyed by IP + minute bucket. NIM free tier has tight per-minute limits,
+// so keeping this cooldown matters more there.
 //
-// Secrets expected in the Supabase project:
-//   - ANTHROPIC_API_KEY  (required; if missing we return server_not_configured)
-//   - CHAT_MODEL         (optional; defaults to claude-haiku-4-5-20251001)
-//   - SUPABASE_URL       (auto)
-//   - SUPABASE_SERVICE_ROLE_KEY (auto)
+// Secrets expected in the Supabase project (at least one provider required):
+//   - NVIDIA_API_KEY / NVIDIA_API_KEYS  (comma-separated pool, rotated)
+//   - GROQ_API_KEY   / GROQ_API_KEYS    (comma-separated pool, rotated)
+//   - ANTHROPIC_API_KEY                 (optional passthrough)
+//   - CHAT_MODEL                        (optional; default server-side model)
+//   - SUPABASE_URL                      (auto)
+//   - SUPABASE_SERVICE_ROLE_KEY         (auto)
+//
+// Per-request override: the POST body may include a `model` field to
+// pick any model from the registry (see providers.ts). Unknown ids fall
+// back to CHAT_MODEL. The required key pool is checked per resolved
+// provider, so you can run with only NVIDIA or only Groq keys set.
 
 // @ts-ignore - Deno remote imports resolved at runtime by Supabase.
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.45.0';
+import {
+  hasProviderKeys,
+  loadKeys,
+  resolveModel,
+  streamOpenAICompat,
+  type AnthropicContentBlock,
+  type AnthropicMessage,
+  type AnthropicToolResultBlock,
+  type AnthropicToolUseBlock,
+  type ModelInfo,
+  type StreamResult,
+} from './providers.ts';
 
 // ----- types ---------------------------------------------------------------
-
-interface AnthropicTextBlock {
-  type: 'text';
-  text: string;
-}
-interface AnthropicToolUseBlock {
-  type: 'tool_use';
-  id: string;
-  name: string;
-  input: Record<string, unknown>;
-}
-interface AnthropicToolResultBlock {
-  type: 'tool_result';
-  tool_use_id: string;
-  content: string;
-  is_error?: boolean;
-}
-type AnthropicContentBlock =
-  | AnthropicTextBlock
-  | AnthropicToolUseBlock
-  | AnthropicToolResultBlock;
-
-interface AnthropicMessage {
-  role: 'user' | 'assistant';
-  content: string | AnthropicContentBlock[];
-}
 
 interface ChatRequestBody {
   messages: AnthropicMessage[];
   lang?: 'sv' | 'en';
+  /** Optional per-request model override (must be a registry id). */
+  model?: string;
 }
 
 // ----- constants -----------------------------------------------------------
@@ -74,7 +74,9 @@ const CORS_HEADERS = {
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
 };
 
-const DEFAULT_MODEL = 'claude-haiku-4-5-20251001';
+// Default to a free Groq model. Tool-capable, fast, and the key is free
+// to obtain. Override via CHAT_MODEL env or per-request `model` field.
+const DEFAULT_MODEL = 'llama-3.3-70b-versatile';
 const MAX_TOOL_ITERATIONS = 5;
 const RATE_LIMIT_MS = 15_000;
 
@@ -107,7 +109,23 @@ const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '
 // @ts-ignore
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? '';
 // @ts-ignore
+const NVIDIA_API_KEY = Deno.env.get('NVIDIA_API_KEY') ?? '';
+// @ts-ignore
+const NVIDIA_API_KEYS = Deno.env.get('NVIDIA_API_KEYS') ?? '';
+// @ts-ignore
+const GROQ_API_KEY = Deno.env.get('GROQ_API_KEY') ?? '';
+// @ts-ignore
+const GROQ_API_KEYS = Deno.env.get('GROQ_API_KEYS') ?? '';
+// @ts-ignore
 const CHAT_MODEL = Deno.env.get('CHAT_MODEL') ?? DEFAULT_MODEL;
+
+loadKeys({
+  anthropic: ANTHROPIC_API_KEY,
+  nvidia: NVIDIA_API_KEY,
+  nvidiaPlural: NVIDIA_API_KEYS,
+  groq: GROQ_API_KEY,
+  groqPlural: GROQ_API_KEYS,
+});
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
   auth: { persistSession: false, autoRefreshToken: false },
@@ -195,6 +213,34 @@ const TOOLS = [
       type: 'object',
       properties: { year: { type: 'integer' } },
       required: ['year'],
+    },
+  },
+  {
+    name: 'get_skatteutgifter',
+    description:
+      'Skatteutgifter (tax expenditures). Covers the full ~150-item list from regeringens "Redovisning av skatteutgifter" (skr. 2024/25:98) — every item in sections A (inkomst av tjänst, A1..A41), B (näringsverksamhet, B1..B29), C (kapital, C1..C18), D (socialavgifter, D1..D10), E (mervärdesskatt, E1..E17), F (punktskatter, F1..F22), G (skattereduktioner, G1..G12). Amounts in Mkr (miljoner kronor) for 2024 (utfall), 2025 och 2026 (prognos). Items the bilaga leaves unquantified still have dim rows but no facts — those appear in the `codes_with_no_data` field. Extra: EXTRA_RANTEAVDRAG comes from ESV outside the bilaga (ränteavdraget räknas inte längre som skatteutgift). If you donʼt know the code, call search_skatteutgifter first. ROT = G4, RUT = G3, Jobbskatteavdrag = G11, Förhöjt grundavdrag pensionärer = A41, reducerad moms livsmedel = E1, reducerad energiskatt industri = F13.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        year_from: { type: 'integer' },
+        year_to: { type: 'integer' },
+        codes: {
+          type: 'array',
+          items: { type: 'string' },
+          description: 'Optional code filter, e.g. ["G3","G4"] or ["EXTRA_RANTEAVDRAG"]. Omit to return everything.',
+        },
+      },
+      required: ['year_from', 'year_to'],
+    },
+  },
+  {
+    name: 'search_skatteutgifter',
+    description:
+      'Fuzzy search the skatteutgifter master list (150 items) by Swedish name, English name, or bilaga code. Returns up to 10 matches with code, name_sv, name_en, and a boolean has_data flag. Use this when the user asks about a skatteutgift by name and you need its code to pass to get_skatteutgifter.',
+    input_schema: {
+      type: 'object',
+      properties: { query: { type: 'string' } },
+      required: ['query'],
     },
   },
   {
@@ -401,6 +447,84 @@ async function toolCompareParties(args: { year: number; party_codes: string[] })
   return { year: args.year, gov: gov ?? [], deltas, parties: parties ?? [] };
 }
 
+async function toolGetSkatteutgifter(args: {
+  year_from: number;
+  year_to: number;
+  codes?: string[];
+}) {
+  const { data: dims, error: dimErr } = await supabase
+    .from('dim_skatteutgift')
+    .select('skatteutgift_id, code, name_sv, name_en, sort_order')
+    .order('sort_order');
+  if (dimErr) throw dimErr;
+  const wantedCodes = args.codes && args.codes.length ? new Set(args.codes) : null;
+  const filteredDims = (dims ?? []).filter((d) => !wantedCodes || wantedCodes.has(d.code));
+  if (filteredDims.length === 0) return { error: 'no matching skatteutgifter codes' };
+  const idToDim = new Map<number, { code: string; name_sv: string; name_en: string | null }>();
+  for (const d of filteredDims) idToDim.set(d.skatteutgift_id, d);
+  const { data: facts, error: factErr } = await supabase
+    .from('fact_skatteutgift')
+    .select('year_id, skatteutgift_id, amount_mkr, is_estimated')
+    .gte('year_id', args.year_from)
+    .lte('year_id', args.year_to)
+    .in('skatteutgift_id', filteredDims.map((d) => d.skatteutgift_id));
+  if (factErr) throw factErr;
+  const rows = (facts ?? [])
+    .map((f) => {
+      const dim = idToDim.get(f.skatteutgift_id);
+      if (!dim) return null;
+      return {
+        code: dim.code,
+        name_sv: dim.name_sv,
+        name_en: dim.name_en,
+        year: f.year_id,
+        amount_mkr: Number(f.amount_mkr),
+        is_estimated: f.is_estimated,
+      };
+    })
+    .filter((r) => r !== null)
+    .sort((a, b) => (a!.code < b!.code ? -1 : a!.code > b!.code ? 1 : a!.year - b!.year));
+  const missingCodes = filteredDims
+    .filter((d) => !rows.some((r) => r!.code === d.code))
+    .map((d) => d.code);
+  return {
+    unit: 'Mkr',
+    note:
+      'Source: regeringens skatteutgiftsbilaga (skr. 20XX/XX:98). Amounts in miljoner kronor.',
+    rows,
+    codes_with_no_data: missingCodes,
+  };
+}
+
+async function toolSearchSkatteutgifter(args: { query: string }) {
+  const q = args.query.trim();
+  if (!q) return { matches: [] };
+  const pattern = `%${q}%`;
+  const { data: dims, error } = await supabase
+    .from('dim_skatteutgift')
+    .select('skatteutgift_id, code, name_sv, name_en')
+    .or(`name_sv.ilike.${pattern},name_en.ilike.${pattern},code.ilike.${pattern}`)
+    .limit(10);
+  if (error) throw error;
+  const ids = (dims ?? []).map((d) => d.skatteutgift_id);
+  const hasData = new Set<number>();
+  if (ids.length) {
+    const { data: factIds } = await supabase
+      .from('fact_skatteutgift')
+      .select('skatteutgift_id')
+      .in('skatteutgift_id', ids);
+    for (const r of factIds ?? []) hasData.add(r.skatteutgift_id);
+  }
+  return {
+    matches: (dims ?? []).map((d) => ({
+      code: d.code,
+      name_sv: d.name_sv,
+      name_en: d.name_en,
+      has_data: hasData.has(d.skatteutgift_id),
+    })),
+  };
+}
+
 async function runTool(name: string, input: Record<string, unknown>): Promise<unknown> {
   try {
     switch (name) {
@@ -420,6 +544,12 @@ async function runTool(name: string, input: Record<string, unknown>): Promise<un
         return await toolGetYearMeta(input as { year: number });
       case 'compare_parties':
         return await toolCompareParties(input as { year: number; party_codes: string[] });
+      case 'get_skatteutgifter':
+        return await toolGetSkatteutgifter(
+          input as { year_from: number; year_to: number; codes?: string[] },
+        );
+      case 'search_skatteutgifter':
+        return await toolSearchSkatteutgifter(input as { query: string });
       default:
         return { error: `unknown tool ${name}` };
     }
@@ -448,45 +578,53 @@ function systemPrompt(lang: 'sv' | 'en'): string {
     '- Be concise. Use markdown: **bold** amounts, bullet lists for breakdowns.',
     '- ' + langLine,
     '',
-    'IMPORTANT — what is NOT in the database (yet):',
-    'The current dataset only contains the EXPENDITURE side of the state budget',
-    '(ESV utfall per utgiftsområde + anslag, 1997-2025). It does NOT contain:',
+    'Skatteutgifter (tax expenditures):',
+    'Use get_skatteutgifter for values and search_skatteutgifter to look up a',
+    'bilaga code by keyword. Full coverage of regeringens skr. 2024/25:98',
+    '"Redovisning av skatteutgifter" — ~150 items across sections A (inkomst av',
+    'tjänst, A1..A41), B (näringsverksamhet, B1..B29), C (kapital, C1..C18),',
+    'D (socialavgifter, D1..D10), E (moms, E1..E17), F (punktskatter, F1..F22),',
+    'G (skattereduktioner, G1..G12). Years: 2024 utfall, 2025–2026 prognos.',
+    'Amounts are in Mkr. Popular items by code:',
+    '  ROT = G4,  RUT = G3,  Jobbskatteavdrag = G11,',
+    '  Förhöjt grundavdrag äldre = A41,  Skattelättnader utländska nyckelpersoner = A12,',
+    '  Moms livsmedel 12% = E1,  Moms kultur/idrott 6% = E7,',
+    '  Nedsatt energiskatt industri = F13.',
+    'If an item has a dim row but no fact rows (appears in codes_with_no_data),',
+    'it means bilagan skriver "beloppet kan ej beräknas" — säg det, hitta INTE',
+    'på ett belopp.',
     '',
-    '  - Skatteutgifter (tax expenditures) such as ROT, RUT, ränteavdrag (mortgage',
-    '    interest deduction), ISK (investeringssparkonto schablonbeskattning).',
-    '    These live on the REVENUE side under inkomsttitel 1700-serien',
-    '    (skatteminskningar). They reduce tax intake rather than appearing as',
-    '    anslag. Official figures are published yearly in regeringens',
-    '    "Skatteutgiftsbilaga" attached to budgetpropositionen.',
+    'EXTRA_RANTEAVDRAG (ränteavdraget, hushåll) is a special case.',
+    'Sedan skr. 2024/25:98 räknas det INTE längre som en skatteutgift av regeringen',
+    '— de anser att 30 % skattereduktion är normskattesatsen för kapital. Den',
+    'siffra som journalister citerar (61 mdr för 2024) kommer från ESV:s separata',
+    'beräkning av statens kostnad för hushållens ränteutgifter, baserad på SCB-data.',
+    'Vi har lagt in 2020 (28 mdr), 2023 (51 mdr) och 2024 (61 mdr) i datasetet under',
+    'koden EXTRA_RANTEAVDRAG. När du citerar ränteavdraget: nämn att källan är',
+    'ESV/SCB hushållsdata, INTE skatteutgiftsbilagan, och förklara reklassificeringen',
+    'om det är relevant.',
+    '',
+    'Skatteutgifter live on the revenue side under inkomsttitel 1700-serien,',
+    'NOT as anslag.',
+    '',
+    'Partiernas skuggbudgetar (compare_parties tool):',
+    'Real shadow budgets from riksdagens budgetmotioner cover S, V, MP, C for',
+    'both 2025 (BP25 motioner, Oct 2024) and 2026 (BP26 motioner, Oct 2025).',
+    'M, KD, L are coalition parties so their "delta" = 0 (regeringens budget).',
+    'SD has no independent budgetmotion and also = 0. Numbers are per',
+    'utgiftsområde i mkr, avvikelse från regeringens förslag.',
+    '',
+    'IMPORTANT — what is NOT in the database (yet):',
     '  - Inkomstsidan (revenue side) generally — momsintäkter, arbetsgivar-',
     '    avgifter, kapitalinkomstskatt etc. Not yet ingested.',
-    '  - Partiernas skuggbudgetar — currently STUB / DEMO data only.',
     '',
-    'When a user asks about ROT, RUT, ränteavdrag, ISK or other tax expenditures:',
-    '  1. Explain that they are skatteutgifter, not anslag, and live on the',
-    '     revenue side under inkomsttitel 1700-serien.',
-    '  2. Point at the official source: regeringens skatteutgiftsbilaga',
-    '     (https://www.regeringen.se search "skatteutgifter bilaga").',
-    '  3. Mention which utgiftsområden they thematically relate to:',
-    '     - ROT/RUT → tematiskt UO18 (bostäder) + UO14 (arbetsmarknad)',
-    '     - Ränteavdrag → tematiskt UO18',
-    '     - ISK → tematiskt UO02 (samhällsekonomi)',
-    '  4. Be honest: "den här webbplatsen visar inte skatteutgifter ännu —',
-    '     det kommer i en framtida version."',
-    '',
-    'When a user asks about inkomster (revenue) or specific tax types:',
-    '  Say the app currently only covers utgiftssidan and point at ESV/SCB.',
+    'When a user asks about inkomster (revenue) or specific tax types not',
+    'covered by get_skatteutgifter, say the app currently only covers',
+    'utgiftssidan + de största skatteutgifterna and point at ESV/SCB.',
   ].join('\n');
 }
 
 // ----- Anthropic streaming call --------------------------------------------
-
-interface StreamResult {
-  /** Accumulated content blocks needed for the next turn (assistant role). */
-  content: AnthropicContentBlock[];
-  /** Stop reason from message_delta. */
-  stopReason: string;
-}
 
 /**
  * Open Anthropic's SSE Messages endpoint and call back on every relevant
@@ -497,6 +635,7 @@ interface StreamResult {
 async function streamAnthropic(
   messages: AnthropicMessage[],
   system: string,
+  modelId: string,
   callbacks: {
     onText: (delta: string) => void;
     onToolUse: (block: AnthropicToolUseBlock) => void;
@@ -510,7 +649,7 @@ async function streamAnthropic(
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: CHAT_MODEL,
+      model: modelId,
       max_tokens: 1024,
       stream: true,
       system,
@@ -655,7 +794,12 @@ Deno.serve(async (req: Request) => {
     return new Response('method not allowed', { status: 405, headers: CORS_HEADERS });
   }
 
-  if (!ANTHROPIC_API_KEY) {
+  // Fail fast if no provider has any keys at all.
+  if (
+    !hasProviderKeys('nvidia') &&
+    !hasProviderKeys('groq') &&
+    !hasProviderKeys('anthropic')
+  ) {
     return new Response(
       JSON.stringify({ ok: false, error: 'server_not_configured' }),
       { status: 503, headers: { ...CORS_HEADERS, 'content-type': 'application/json' } },
@@ -685,6 +829,25 @@ Deno.serve(async (req: Request) => {
   const system = systemPrompt(lang);
   const conversation: AnthropicMessage[] = [...(body.messages ?? [])];
 
+  // Resolve model: per-request override wins, else CHAT_MODEL env, else
+  // DEFAULT_MODEL. Unknown ids fall back to the configured default so a
+  // stale client cannot break the endpoint.
+  const requestedModelId =
+    (typeof body.model === 'string' && body.model.trim()) || CHAT_MODEL;
+  const modelInfo: ModelInfo =
+    resolveModel(requestedModelId) ?? resolveModel(CHAT_MODEL) ?? resolveModel(DEFAULT_MODEL)!;
+
+  if (!hasProviderKeys(modelInfo.provider)) {
+    return new Response(
+      JSON.stringify({
+        ok: false,
+        error: 'provider_not_configured',
+        provider: modelInfo.provider,
+      }),
+      { status: 503, headers: { ...CORS_HEADERS, 'content-type': 'application/json' } },
+    );
+  }
+
   // We stream our own SSE protocol to the client. Events:
   //   event: text           data: {"text":"partial token"}
   //   event: tool_use       data: {"name":"get_budget_by_year","input":{...}}
@@ -699,11 +862,26 @@ Deno.serve(async (req: Request) => {
       };
       try {
         for (let iter = 0; iter < MAX_TOOL_ITERATIONS; iter++) {
-          const result = await streamAnthropic(conversation, system, {
-            onText: (delta) => send('text', { text: delta }),
-            onToolUse: (block) =>
+          const callbacks = {
+            onText: (delta: string) => send('text', { text: delta }),
+            onToolUse: (block: AnthropicToolUseBlock) =>
               send('tool_use', { id: block.id, name: block.name, input: block.input }),
-          });
+          };
+          const result: StreamResult =
+            modelInfo.provider === 'anthropic'
+              ? await streamAnthropic(
+                  conversation,
+                  system,
+                  modelInfo.providerModelId,
+                  callbacks,
+                )
+              : await streamOpenAICompat({
+                  model: modelInfo,
+                  messages: conversation,
+                  system,
+                  tools: TOOLS,
+                  callbacks,
+                });
 
           if (result.stopReason !== 'tool_use') {
             send('done', {});
