@@ -21,6 +21,7 @@ export interface PieRow {
   value: number;
   rawAmount: number;
   pct: number;
+  changePct?: number | null;
 }
 
 interface Props {
@@ -143,7 +144,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
             <colgroup>
               <col className="w-7 sm:w-10" />
               <col />
-              <col className="w-[5.5rem] sm:w-28" />
+              <col className="w-[8rem] sm:w-40" />
               <col className="w-0 sm:w-16" />
               <col className="w-0 sm:w-8" />
             </colgroup>
@@ -193,7 +194,17 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
                         </div>
                       </td>
                       <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm">
-                        {mkr(r.rawAmount)}
+                        <div className="flex items-center justify-end gap-1.5">
+                          <span>{mkr(r.rawAmount)}</span>
+                          {r.changePct != null && (
+                            <span className={cn(
+                              'inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium leading-none',
+                              r.changePct > 0 ? 'bg-green-100 text-green-700' : r.changePct < 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500',
+                            )}>
+                              {r.changePct > 0 ? '+' : ''}{r.changePct.toFixed(1)}%
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums text-muted-foreground hidden sm:table-cell">
                         {r.pct.toFixed(1)}%

@@ -93,6 +93,13 @@ const Explorer = () => {
     enabled: !!selectedYear,
   });
 
+  const prevYear = selectedYear ? selectedYear - 1 : 0;
+  const { data: prevBudgetData } = useQuery({
+    queryKey: ['budget', prevYear],
+    queryFn: () => getBudgetByYear(prevYear),
+    enabled: prevYear > 0,
+  });
+
   const govBudgetData = useMemo(() =>
     budgetData?.filter(f => f.budget_type !== 'shadow_delta') || [],
     [budgetData]
@@ -102,6 +109,17 @@ const Explorer = () => {
     govBudgetData.reduce((sum, f) => sum + f.amount_nominal_sek, 0),
     [govBudgetData]
   );
+
+  const prevByArea = useMemo(() => {
+    const map = new Map<number, number>();
+    if (!prevBudgetData) return map;
+    for (const f of prevBudgetData) {
+      if (f.budget_type !== 'shadow_delta' && f.anslag_id == null) {
+        map.set(f.area_id, f.amount_nominal_sek);
+      }
+    }
+    return map;
+  }, [prevBudgetData]);
 
   const { data: timeSeriesData, isLoading: timeSeriesLoading } = useQuery({
     queryKey: ['timeseries', selectedAreaId, yearFrom, yearTo],
@@ -119,15 +137,18 @@ const Explorer = () => {
       .filter(f => areas.some(a => a.area_id === f.area_id))
       .map(f => {
         const area = areas.find(a => a.area_id === f.area_id)!;
+        const prev = prevByArea.get(f.area_id);
+        const changePct = prev && prev > 0 ? ((f.amount_nominal_sek - prev) / prev) * 100 : null;
         return {
           area,
           value: convertAmount(f.amount_nominal_sek, mode, yearData, totalForYear),
           rawAmount: f.amount_nominal_sek,
           pct: totalForYear ? (f.amount_nominal_sek / totalForYear) * 100 : 0,
+          changePct,
         };
       })
       .sort((a, b) => b.value - a.value);
-  }, [govBudgetData, areas, yearData, mode, totalForYear]);
+  }, [govBudgetData, areas, yearData, mode, totalForYear, prevByArea]);
 
   // Time series data — respects the category filter
   const timeChartSeries = useMemo(() => {
