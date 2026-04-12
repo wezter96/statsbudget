@@ -2,6 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type {
   DimYear, DimArea, DimAnslag, DimParty, FactBudget, FactHistorical, DisplayMode,
   DimSkatteutgift, FactSkatteutgift,
+  DimIncomeTitle, FactIncome,
 } from './supabase-types';
 
 // The tables exist in the DB but aren't in the auto-generated types yet.
@@ -122,6 +123,46 @@ export async function getSkatteutgiftTimeSeries(): Promise<FactSkatteutgift[]> {
   const { data, error } = await db.from('fact_skatteutgift').select('*').order('year_id', { ascending: true });
   if (error) throw error;
   return (data ?? []) as FactSkatteutgift[];
+}
+
+// ---------- Skatteintakter (tax revenues) ----------
+
+export async function getIncomeGroups(): Promise<DimIncomeTitle[]> {
+  const { data, error } = await db
+    .from('dim_income_title')
+    .select('*')
+    .is('parent_id', null)
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as DimIncomeTitle[];
+}
+
+export async function getIncomeSubtitles(parentId: number): Promise<DimIncomeTitle[]> {
+  const { data, error } = await db
+    .from('dim_income_title')
+    .select('*')
+    .eq('parent_id', parentId)
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as DimIncomeTitle[];
+}
+
+export async function getIncomeFacts(year: number): Promise<FactIncome[]> {
+  const { data, error } = await db
+    .from('fact_income')
+    .select('*')
+    .eq('year_id', year);
+  if (error) throw error;
+  return (data ?? []) as FactIncome[];
+}
+
+export async function getIncomeTimeSeries(): Promise<FactIncome[]> {
+  const { data, error } = await db
+    .from('fact_income')
+    .select('*')
+    .order('year_id', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as FactIncome[];
 }
 
 export function convertAmount(amount: number, mode: DisplayMode, yearData: DimYear, totalForYear?: number): number {

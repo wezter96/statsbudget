@@ -76,5 +76,23 @@ export interface FactBudget {
   is_revenue: boolean;
 }
 
+export interface DimIncomeTitle {
+  income_title_id: number;
+  parent_id: number | null;
+  code: string;
+  name_sv: string;
+  name_en: string | null;
+  description_sv: string | null;
+  sort_order: number;
+}
+
+export interface FactIncome {
+  fact_id: number;
+  year_id: number;
+  income_title_id: number;
+  amount_mkr: number;
+  is_estimated: boolean;
+}
+
 export type DisplayMode = 'total_pct' | 'real' | 'nominal' | 'gdp_pct';
 export type DrillLevel = 'area' | 'anslag';
