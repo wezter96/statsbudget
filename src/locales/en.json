@@ -44,6 +44,9 @@
     "table": {
       "area": "Expenditure area"
     },
+    "compare": "Compare",
+    "compareWith": "Compare with",
+    "compareYear": "Comparison year",
     "anslag": {
       "heading": "Appropriations within {{area}}",
       "loading": "Loading appropriations…",

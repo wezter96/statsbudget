@@ -27,6 +27,7 @@ const LangMeta = ({ svPath, search = '' }: Props) => {
   return (
     <Helmet>
       {canonical && <link rel="canonical" href={canonical} />}
+      {canonical && <meta property="og:url" content={canonical} />}
       {svUrl && <link rel="alternate" hrefLang="sv" href={svUrl} />}
       {enUrl && <link rel="alternate" hrefLang="en" href={enUrl} />}
       {svUrl && <link rel="alternate" hrefLang="x-default" href={svUrl} />}

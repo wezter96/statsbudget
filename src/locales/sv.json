@@ -44,6 +44,9 @@
     "table": {
       "area": "Utgiftsområde"
     },
+    "compare": "Jämför",
+    "compareWith": "Jämför med",
+    "compareYear": "Jämförelseår",
     "anslag": {
       "heading": "Anslag inom {{area}}",
       "loading": "Laddar anslag…",
