@@ -90,10 +90,15 @@ function ExpandableRow({ item, t }: { item: ComparisonItem; t: TFunction }) {
       <tr
         className="border-t border-border cursor-pointer hover:bg-muted/30 transition-colors"
         onClick={() => setOpen(o => !o)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setOpen(o => !o); } }}
+        tabIndex={0}
+        role="button"
+        aria-expanded={open}
       >
         <td className="px-4 py-3 font-medium text-foreground">
           <div className="flex items-center gap-2">
             <ChevronDown
+              aria-hidden="true"
               className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-0' : '-rotate-90'}`}
             />
             {name}
@@ -146,10 +151,12 @@ function ComparisonSection() {
               </div>
               <div className="flex-1">
                 <div
+                  role="img"
+                  aria-label={`${t(`skatteutgifter.comparison.cat.${cat.catKey}.barLabel`)}: ${cat.total}`}
                   className={`h-8 rounded ${cat.bgColor} ${cat.borderColor} border flex items-center px-2`}
                   style={{ width: `${Math.max((cat.totalNum / max) * 100, 8)}%` }}
                 >
-                  <span className={`text-xs font-medium truncate ${cat.color}`}>
+                  <span aria-hidden="true" className={`text-xs font-medium truncate ${cat.color}`}>
                     {t(`skatteutgifter.comparison.cat.${cat.catKey}.barLabel`)}
                   </span>
                 </div>
@@ -282,6 +289,10 @@ const SkatteutgifterPage = () => {
       <Helmet>
         <title>{t('skatteutgifter.title')} — Statsbudget</title>
         <meta name="description" content={t('skatteutgifter.intro')} />
+        <meta property="og:title" content={`${t('skatteutgifter.title')} — Statsbudget`} />
+        <meta property="og:description" content={t('skatteutgifter.intro')} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
 
       <section className="border-b border-border bg-muted/40 py-12 sm:py-16">
@@ -410,7 +421,7 @@ const SkatteutgifterPage = () => {
             <p>
               <strong>{t('skatteutgifter.sourcesLabel')}:</strong>{' '}
               <a
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2"
                 href="https://www.regeringen.se/search?query=skatteutgifter+bilaga"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -419,7 +430,7 @@ const SkatteutgifterPage = () => {
               </a>
               {' · '}
               <a
-                className="text-primary hover:underline"
+                className="text-primary underline underline-offset-2"
                 href="https://www.esv.se/statsbudgetens-utveckling/"
                 target="_blank"
                 rel="noopener noreferrer"

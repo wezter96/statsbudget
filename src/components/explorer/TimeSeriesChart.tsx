@@ -145,6 +145,8 @@ const TimeSeriesChart = ({ series, mode, yearFrom, yearTo }: TimeSeriesChartProp
         notMerge={true}
         lazyUpdate={false}
         style={{ height: window.innerWidth < 640 ? '280px' : '400px', width: '100%' }}
+        // @ts-expect-error echarts-for-react spreads extra props to wrapper div
+        role="img"
         aria-label="Tidsserie över budgetdata"
       />
       <ul className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">

@@ -22,6 +22,8 @@ export interface PieRow {
   rawAmount: number;
   pct: number;
   changePct?: number | null;
+  compareRawAmount?: number | null;
+  compareValue?: number;
 }
 
 interface Props {
@@ -29,9 +31,11 @@ interface Props {
   mode: DisplayMode;
   year: number;
   yearData?: DimYear;
+  compareActive?: boolean;
+  compareYear?: number | null;
 }
 
-const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
+const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, compareYear }: Props) => {
   const { t } = useTranslation();
   const localizeArea = useAreaName();
   const lang = useActiveLang();
@@ -133,6 +137,8 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
             option={option}
             style={{ height: '100%', width: '100%' }}
             onEvents={onChartEvents}
+            // @ts-expect-error echarts-for-react spreads extra props to the wrapper div
+            role="img"
             aria-label={`Budgetfördelning ${year}`}
           />
         </div>
@@ -141,20 +147,33 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
       <div className="lg:col-span-3 min-w-0">
         <div className="rounded-xl bg-card ring-1 ring-border/60 max-h-[70vh] sm:max-h-[520px] lg:max-h-none lg:h-[520px] overflow-y-auto overflow-x-hidden relative">
           <table className="w-full text-sm table-fixed">
-            <colgroup>
-              <col className="w-7 sm:w-10" />
-              <col />
-              <col className="w-[8rem] sm:w-40" />
-              <col className="w-0 sm:w-16" />
-              <col className="w-0 sm:w-8" />
-            </colgroup>
+            {!compareActive && (
+              <colgroup>
+                <col className="w-7 sm:w-10" />
+                <col />
+                <col className="w-[8rem] sm:w-40" />
+                <col className="w-0 sm:w-16" />
+                <col className="w-0 sm:w-8" />
+              </colgroup>
+            )}
             <thead className="sticky top-0 z-10 bg-muted/90 backdrop-blur">
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-2 sm:px-3 py-2 font-medium">#</th>
-                <th className="px-2 sm:px-3 py-2 font-medium">{t('explorer.table.area')}</th>
-                <th className="px-2 sm:px-3 py-2 font-medium text-right">{t('explorer.amount')}</th>
-                <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell">{t('explorer.share')}</th>
-                <th className="px-1 sm:px-2 py-2 hidden sm:table-cell" aria-hidden="true" />
+                <th className={cn('px-2 sm:px-3 py-2 font-medium', compareActive && 'w-[5%]')}>#</th>
+                <th className={cn('px-2 sm:px-3 py-2 font-medium', compareActive && 'w-[47%] sm:w-[34%]')}>{t('explorer.table.area')}</th>
+                <th className={cn('px-2 sm:px-3 py-2 font-medium text-right', compareActive && 'w-[30%] sm:w-[22%]')}>
+                  {compareActive ? year : t('explorer.amount')}
+                </th>
+                {compareActive && (
+                  <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell sm:w-[20%]">
+                    {compareYear}
+                  </th>
+                )}
+                {compareActive ? (
+                  <th className="px-2 sm:px-3 py-2 font-medium text-right w-[18%] sm:w-[15%]">{t('explorer.change')}</th>
+                ) : (
+                  <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell">{t('explorer.share')}</th>
+                )}
+                <th className={cn('px-1 sm:px-2 py-2 hidden sm:table-cell', compareActive && 'sm:w-[4%]')} aria-hidden="true" />
               </tr>
             </thead>
             <tbody>
@@ -176,6 +195,15 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
                       onClick={() =>
                         setExpandedAreaId((prev) => (prev === r.area.area_id ? null : r.area.area_id))
                       }
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          setExpandedAreaId((prev) => (prev === r.area.area_id ? null : r.area.area_id));
+                        }
+                      }}
+                      tabIndex={0}
+                      role="button"
+                      aria-expanded={isExpanded}
                       className={cn(
                         'cursor-pointer border-t border-border/50 transition-colors row-press',
                         isHover && 'bg-primary/5',
@@ -190,31 +218,53 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
                             className="inline-block h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-sm shrink-0"
                             style={{ backgroundColor: color }}
                           />
-                          <span className="font-medium text-foreground truncate text-xs sm:text-sm">{localizeArea(r.area.name_sv)}</span>
+                          <span className="font-medium text-foreground truncate text-xs sm:text-sm" title={localizeArea(r.area.name_sv)}>{localizeArea(r.area.name_sv)}</span>
                         </div>
                       </td>
                       <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm">
-                        <div className="flex items-center justify-end gap-1.5">
+                        {compareActive ? (
                           <span>{mkr(r.rawAmount)}</span>
-                          {r.changePct != null && (
+                        ) : (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span>{mkr(r.rawAmount)}</span>
+                            {r.changePct != null && (
+                              <span className={cn(
+                                'inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium leading-none',
+                                r.changePct > 0 ? 'bg-green-100 text-green-700' : r.changePct < 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500',
+                              )}>
+                                {r.changePct > 0 ? '+' : ''}{r.changePct.toFixed(1)}%
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      {compareActive && (
+                        <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm text-muted-foreground hidden sm:table-cell">
+                          {r.compareRawAmount != null ? mkr(r.compareRawAmount) : '—'}
+                        </td>
+                      )}
+                      {compareActive ? (
+                        <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm">
+                          {r.changePct != null ? (
                             <span className={cn(
                               'inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium leading-none',
                               r.changePct > 0 ? 'bg-green-100 text-green-700' : r.changePct < 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500',
                             )}>
                               {r.changePct > 0 ? '+' : ''}{r.changePct.toFixed(1)}%
                             </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums text-muted-foreground hidden sm:table-cell">
-                        {r.pct.toFixed(1)}%
-                      </td>
+                          ) : '—'}
+                        </td>
+                      ) : (
+                        <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums text-muted-foreground hidden sm:table-cell">
+                          {r.pct.toFixed(1)}%
+                        </td>
+                      )}
                       <td className="px-1 sm:px-2 py-2.5 text-muted-foreground hidden sm:table-cell">
-                        <ChevronDown className={cn('h-4 w-4 transition-transform duration-200', !isExpanded && '-rotate-90')} />
+                        <ChevronDown aria-hidden="true" className={cn('h-4 w-4 transition-transform duration-200', !isExpanded && '-rotate-90')} />
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={5} className="p-0 border-0">
+                      <td colSpan={compareActive ? 7 : 5} className="p-0 border-0">
                         <div
                           className={cn(
                             'grid transition-[grid-template-rows] duration-300 ease-in-out',
@@ -343,6 +393,8 @@ const AnslagBreakdown = ({ areaId, areaName, year }: AnslagBreakdownProps) => {
           echarts={echarts}
           option={option}
           style={{ height: '180px', width: '100%' }}
+          // @ts-expect-error echarts-for-react spreads extra props to wrapper div
+          role="img"
           aria-label={`Anslag i ${areaName}`}
         />
       </div>

@@ -182,8 +182,8 @@ const FeedbackForm = () => {
       </p>
 
       {status.kind === 'error' && (
-        <div className="flex items-start gap-2 rounded-lg bg-rose-50 p-3 text-sm text-rose-900 ring-1 ring-rose-200">
-          <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+        <div role="alert" className="flex items-start gap-2 rounded-lg bg-rose-50 p-3 text-sm text-rose-900 ring-1 ring-rose-200">
+          <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
           <span>{status.message}</span>
         </div>
       )}

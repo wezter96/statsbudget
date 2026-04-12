@@ -138,8 +138,8 @@ const SnapshotSection = ({ year }: { year: number }) => {
       </div>
 
       {hasUncertain && (
-        <div className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-amber-200">
-          ⚠ Enskilda rader är osäkra — markerade med gul punkt. Se källa för manuell verifiering.
+        <div role="note" className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-amber-200">
+          <span aria-hidden="true">⚠ </span>Enskilda rader är osäkra — markerade med gul punkt. Se källa för manuell verifiering.
         </div>
       )}
 
@@ -172,6 +172,11 @@ const SnapshotSection = ({ year }: { year: number }) => {
                     </div>
                     <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-secondary">
                       <div
+                        role="progressbar"
+                        aria-valuenow={Math.round(pct)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${r.category_sv}: ${pct.toFixed(1)}%`}
                         className="h-full rounded-full transition-all"
                         style={{ width: `${pct}%`, backgroundColor: stableColor(r.category_sv) }}
                       />
@@ -260,6 +265,8 @@ const HistoricalPie = ({
           echarts={echarts}
           option={option}
           style={{ height: '280px', width: '100%' }}
+          // @ts-expect-error echarts-for-react spreads extra props to wrapper div
+          role="img"
           aria-label={`Statsbudget ${year}`}
         />
       ) : (
@@ -349,6 +356,8 @@ const TodayPanel = ({ year }: { year: number | null }) => {
           echarts={echarts}
           option={option}
           style={{ height: '320px', width: '100%' }}
+          // @ts-expect-error echarts-for-react spreads extra props to wrapper div
+          role="img"
           aria-label={`Statsbudget ${year}`}
         />
       ) : (

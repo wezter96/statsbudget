@@ -44,6 +44,7 @@ const Header = () => {
               <Link
                 key={link.to}
                 to={loc(link.to)}
+                aria-current={active ? 'page' : undefined}
                 className={cn(
                   'rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
                   active
@@ -83,6 +84,7 @@ const Header = () => {
                   key={link.to}
                   to={loc(link.to)}
                   onClick={() => setMenuOpen(false)}
+                  aria-current={active ? 'page' : undefined}
                   className={cn(
                     'rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
                     active

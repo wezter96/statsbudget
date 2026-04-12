@@ -86,6 +86,8 @@ const BudgetBalanceChart = () => {
         echarts={echarts}
         option={option}
         style={{ height: '320px', width: '100%' }}
+        // @ts-expect-error echarts-for-react spreads extra props to wrapper div
+        role="img"
         aria-label="Budgetbalans under olika regeringar"
       />
       <p className="mt-2 text-xs text-muted-foreground">
@@ -93,7 +95,7 @@ const BudgetBalanceChart = () => {
           href="https://www.ekonomifakta.se/sakomraden/offentlig-ekonomi/statsbudget/statsbudgetens-saldo_1209553.html"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-primary hover:underline"
+          className="text-primary underline underline-offset-2"
         >
           {t('explorer.budgetBalanceSource')}
         </a>

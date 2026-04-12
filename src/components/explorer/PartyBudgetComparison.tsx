@@ -188,6 +188,8 @@ const PartyBudgetComparison = () => {
             echarts={echarts}
             option={summaryOption}
             style={{ height: `${Math.max(180, totalDeltas.length * 44)}px`, width: '100%' }}
+            // @ts-expect-error echarts-for-react spreads extra props to wrapper div
+            role="img"
             aria-label={`Partiernas budgetavvikelser ${selectedYear}`}
           />
           <p className="mt-2 text-xs text-muted-foreground">
@@ -196,7 +198,7 @@ const PartyBudgetComparison = () => {
               href="https://www.riksdagen.se/sv/dokument-och-lagar/"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-primary hover:underline"
+              className="text-primary underline underline-offset-2"
             >
               riksdagen.se ↗
             </a>

@@ -16,6 +16,7 @@ import TimeSeriesChart from './TimeSeriesChart';
 import BudgetBalanceChart from './BudgetBalanceChart';
 import PartyBudgetComparison from './PartyBudgetComparison';
 import { TreemapSkeleton, ChartSkeleton } from '@/components/Skeletons';
+import { cn } from '@/lib/utils';
 import { useActiveLang, formatMkrLocalized, localizeAreaName } from '@/lib/area-i18n';
 
 const Explorer = () => {
@@ -30,6 +31,7 @@ const Explorer = () => {
   const urlFrom = searchParams.get('from');
   const urlTo = searchParams.get('to');
   const urlAreas = searchParams.get('areas');
+  const urlCompare = searchParams.get('compare');
 
   const [mode, setMode] = useState<DisplayMode>(urlMode || 'total_pct');
   // selectedYear + yearTo start at 0 and get hydrated to the latest year once
@@ -49,6 +51,9 @@ const Explorer = () => {
   const { data: budgetYears } = useQuery({ queryKey: ['budget_years'], queryFn: getBudgetYears });
   const { data: areas } = useQuery({ queryKey: ['areas'], queryFn: getAreas });
 
+  const [compareActive, setCompareActive] = useState(!!urlCompare);
+  const [compareYear, setCompareYear] = useState<number | null>(urlCompare ? Number(urlCompare) : null);
+
   // Sync state to URL — skip placeholder 0 values until they hydrate
   useEffect(() => {
     if (!selectedYear || !yearTo || !areas || selectedCategoryIds === undefined) return;
@@ -56,12 +61,12 @@ const Explorer = () => {
     if (selectedAreaId) params.area = String(selectedAreaId);
     params.from = String(yearFrom);
     params.to = String(yearTo);
-    // Only write `areas` when it's a genuine subset (not all selected)
     if (selectedCategoryIds.length > 0 && selectedCategoryIds.length < areas.length) {
       params.areas = selectedCategoryIds.join(',');
     }
+    if (compareActive && compareYear) params.compare = String(compareYear);
     setSearchParams(params, { replace: true });
-  }, [selectedYear, mode, selectedAreaId, yearFrom, yearTo, selectedCategoryIds, areas, setSearchParams]);
+  }, [selectedYear, mode, selectedAreaId, yearFrom, yearTo, selectedCategoryIds, areas, setSearchParams, compareActive, compareYear]);
 
   // Only expose years that actually have fact_budget rows — hides SCB-only years
   const regularYears = useMemo(() => budgetYears ?? [], [budgetYears]);
@@ -82,6 +87,12 @@ const Explorer = () => {
     setSelectedCategoryIds(areas.map((a) => a.area_id));
   }, [areas, selectedCategoryIds]);
 
+  useEffect(() => {
+    if (selectedYear && !compareYear) {
+      setCompareYear(selectedYear - 1);
+    }
+  }, [selectedYear, compareYear]);
+
   const yearData = useMemo(() =>
     years?.find(y => y.year_id === selectedYear),
     [years, selectedYear]
@@ -93,12 +104,17 @@ const Explorer = () => {
     enabled: !!selectedYear,
   });
 
-  const prevYear = selectedYear ? selectedYear - 1 : 0;
-  const { data: prevBudgetData } = useQuery({
-    queryKey: ['budget', prevYear],
-    queryFn: () => getBudgetByYear(prevYear),
-    enabled: prevYear > 0,
+  const effectiveCompareYear = compareActive && compareYear ? compareYear : (selectedYear ? selectedYear - 1 : 0);
+  const { data: compareBudgetData } = useQuery({
+    queryKey: ['budget', effectiveCompareYear],
+    queryFn: () => getBudgetByYear(effectiveCompareYear),
+    enabled: effectiveCompareYear > 0,
   });
+
+  const compareYearData = useMemo(() =>
+    years?.find(y => y.year_id === effectiveCompareYear),
+    [years, effectiveCompareYear]
+  );
 
   const govBudgetData = useMemo(() =>
     budgetData?.filter(f => f.budget_type !== 'shadow_delta') || [],
@@ -110,16 +126,23 @@ const Explorer = () => {
     [govBudgetData]
   );
 
-  const prevByArea = useMemo(() => {
+  const compareByArea = useMemo(() => {
     const map = new Map<number, number>();
-    if (!prevBudgetData) return map;
-    for (const f of prevBudgetData) {
+    if (!compareBudgetData) return map;
+    for (const f of compareBudgetData) {
       if (f.budget_type !== 'shadow_delta' && f.anslag_id == null) {
         map.set(f.area_id, f.amount_nominal_sek);
       }
     }
     return map;
-  }, [prevBudgetData]);
+  }, [compareBudgetData]);
+
+  const compareTotalForYear = useMemo(() => {
+    if (!compareBudgetData) return 0;
+    return compareBudgetData
+      .filter(f => f.budget_type !== 'shadow_delta')
+      .reduce((sum, f) => sum + f.amount_nominal_sek, 0);
+  }, [compareBudgetData]);
 
   const { data: timeSeriesData, isLoading: timeSeriesLoading } = useQuery({
     queryKey: ['timeseries', selectedAreaId, yearFrom, yearTo],
@@ -137,18 +160,24 @@ const Explorer = () => {
       .filter(f => areas.some(a => a.area_id === f.area_id))
       .map(f => {
         const area = areas.find(a => a.area_id === f.area_id)!;
-        const prev = prevByArea.get(f.area_id);
+        const prev = compareByArea.get(f.area_id);
         const changePct = prev && prev > 0 ? ((f.amount_nominal_sek - prev) / prev) * 100 : null;
+        const compareRaw = prev ?? null;
+        const compareValue = compareActive && compareRaw != null && compareYearData
+          ? convertAmount(compareRaw, mode, compareYearData, compareTotalForYear)
+          : undefined;
         return {
           area,
           value: convertAmount(f.amount_nominal_sek, mode, yearData, totalForYear),
           rawAmount: f.amount_nominal_sek,
           pct: totalForYear ? (f.amount_nominal_sek / totalForYear) * 100 : 0,
           changePct,
+          compareRawAmount: compareRaw,
+          compareValue,
         };
       })
       .sort((a, b) => b.value - a.value);
-  }, [govBudgetData, areas, yearData, mode, totalForYear, prevByArea]);
+  }, [govBudgetData, areas, yearData, mode, totalForYear, compareByArea, compareActive, compareYearData, compareTotalForYear]);
 
   // Time series data — respects the category filter
   const timeChartSeries = useMemo(() => {
@@ -197,7 +226,7 @@ const Explorer = () => {
   }, [selectedAreaId, areas]);
 
   return (
-    <section id="explorer" className="py-8 sm:py-12">
+    <section id="explorer" aria-label={t('nav.explorer')} className="py-8 sm:py-12">
       <div className="container">
         {/* Breadcrumb */}
         {breadcrumb && (
@@ -260,11 +289,41 @@ const Explorer = () => {
                   </div>
                 )}
               </div>
-              <YearPicker
-                years={regularYears}
-                selectedYear={selectedYear}
-                onChange={setSelectedYear}
-              />
+              <div className="flex flex-wrap items-center gap-2">
+                <YearPicker
+                  years={regularYears}
+                  selectedYear={selectedYear}
+                  onChange={setSelectedYear}
+                />
+                <button
+                  onClick={() => setCompareActive(prev => !prev)}
+                  className={cn(
+                    'rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors',
+                    compareActive
+                      ? 'border-primary bg-primary text-primary-foreground'
+                      : 'border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/30',
+                  )}
+                >
+                  {t('explorer.compare')}
+                </button>
+                {compareActive && (
+                  <div className="flex items-center gap-1.5">
+                    <label htmlFor="compare-year-select" className="text-sm text-muted-foreground">{t('explorer.compareWith')}</label>
+                    <select
+                      id="compare-year-select"
+                      value={compareYear ?? ''}
+                      onChange={e => setCompareYear(Number(e.target.value))}
+                      className="rounded-lg border border-border bg-card pl-3 pr-8 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring appearance-none bg-[url('data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22%236b7280%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m6%209%206%206%206-6%22%2F%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_8px_center] bg-no-repeat"
+                    >
+                      {regularYears
+                        .filter(y => y !== selectedYear)
+                        .map(y => (
+                          <option key={y} value={y}>{y}</option>
+                        ))}
+                    </select>
+                  </div>
+                )}
+              </div>
             </div>
 
             {budgetLoading ? (
@@ -275,6 +334,8 @@ const Explorer = () => {
                 mode={mode}
                 year={selectedYear}
                 yearData={yearData}
+                compareActive={compareActive}
+                compareYear={compareYear}
               />
             ) : (
               <p className="text-center text-muted-foreground py-12">{t('explorer.noData')}</p>

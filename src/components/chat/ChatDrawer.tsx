@@ -138,7 +138,7 @@ export function ChatDrawer({ open, onOpenChange }: ChatDrawerProps) {
         )}
 
         {status === 'error' && (
-          <div className="border-t border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive">
+          <div role="alert" className="border-t border-destructive/30 bg-destructive/10 px-4 py-2 text-xs text-destructive">
             {t('chat.error')} {error ? <span className="opacity-60">({error})</span> : null}
           </div>
         )}

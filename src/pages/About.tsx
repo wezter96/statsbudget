@@ -89,7 +89,7 @@ const AboutPage = () => {
             href="https://github.com/wezter96/statsbudget"
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-2 inline-block text-primary hover:underline"
+            className="mt-2 inline-block text-primary underline underline-offset-2"
           >
             github.com/wezter96/statsbudget
           </a>
