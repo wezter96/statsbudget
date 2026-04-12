@@ -58,6 +58,39 @@ export const SOURCES: DataSource[] = [
       'Budgetpropositioner, finansutskottets betänkanden och partiernas motioner — används för historiska snapshots, årsspecifik validering och skuggbudgetar.',
     fields: ['Budgetpropositioner', 'Finansutskottets betänkanden', 'Motioner med alternativa förslag'],
   },
+  {
+    id: 'riksrevisionen',
+    name: 'Riksrevisionen',
+    shortName: 'Riksrevisionen',
+    url: 'https://www.riksrevisionen.se',
+    description:
+      'Oberoende granskningsmyndighet under riksdagen. Rapporter om effektiviteten i skatteutgifter — självfinansieringsgrad, dödviktseffekter och fördelningsanalys för ROT, RUT, ISK, jobbskatteavdrag m.fl. Används som källa i den skattepolitiska tidslinjen.',
+    fields: [
+      'RIR 2023:26 — ROT (14 % självfinansiering)',
+      'RIR 2020:2 — RUT (svagt stöd för självfinansiering)',
+      'RIR 2018:19 — ISK (23 mdr skattebortfall 2012–2017)',
+      'RIR 2019:7 — Jobbskatteavdraget',
+      'RIR 2017:5 — 3:12-reglerna',
+    ],
+  },
+  {
+    id: 'regeringen',
+    name: 'Regeringskansliet — Skatteutgiftsbilagan',
+    shortName: 'Regeringen',
+    url: 'https://www.regeringen.se',
+    description:
+      'Regeringens årliga skrivelse "Redovisning av skatteutgifter" (skr. 20XX/XX:98). Listar ~160 poster som avviker från normskattesystemet. Vi använder de ~12 största posterna med kvantifierade belopp. Källa för JOBBSKATTE, MOMS_LIVS, GRUNDAVDRAG, ROT, RUT m.fl.',
+    fields: ['Skatteutgifter per post (Mkr)', 'Utfall + prognoser'],
+  },
+  {
+    id: 'ekonomifakta',
+    name: 'Ekonomifakta',
+    shortName: 'Ekonomifakta',
+    url: 'https://www.ekonomifakta.se',
+    description:
+      'Statistik och visualiseringar om svensk ekonomi. Används som kompletterande källa för budgetbalans per regering.',
+    fields: ['Budgetbalans per regeringsperiod'],
+  },
 ];
 
 /** Map shortName → anchor slug on /about#datakallor. */

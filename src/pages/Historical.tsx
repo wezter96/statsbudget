@@ -10,6 +10,7 @@ import { CanvasRenderer } from 'echarts/renderers';
 import Layout from '@/components/Layout';
 import SourceLink from '@/components/SourceLink';
 import LangMeta from '@/components/LangMeta';
+import PolicyTimeline from '@/components/historical/PolicyTimeline';
 import {
   getAreas,
   getBudgetByYear,
@@ -23,7 +24,7 @@ import type { DimArea, DimYear, FactBudget, FactHistorical } from '@/lib/supabas
 
 echarts.use([PieChart, TooltipComponent, CanvasRenderer]);
 
-const SNAPSHOT_YEARS = [1975, 1980, 1985, 1990, 1995] as const;
+const SNAPSHOT_YEARS = [1975, 1980, 1985] as const;
 
 const formatMkr = (mkr: number): string => {
   if (Math.abs(mkr) >= 1000) return `${(mkr / 1000).toFixed(1)} mdr kr`;
@@ -37,7 +38,9 @@ const HistoricalPage = () => {
   const { data: years } = useQuery({ queryKey: ['years'], queryFn: getYears });
   const latestYear = useMemo(() => {
     if (!years) return null;
-    const regular = years.filter((y) => !y.is_historical).sort((a, b) => b.year_id - a.year_id);
+    const regular = years
+      .filter((y) => !y.is_historical && y.year_id <= 2025)
+      .sort((a, b) => b.year_id - a.year_id);
     return regular[0]?.year_id ?? null;
   }, [years]);
 
@@ -64,6 +67,8 @@ const HistoricalPage = () => {
               {t('historical.intro')}
             </p>
           </header>
+
+          <PolicyTimeline />
 
           <div className="mt-10 grid gap-10 lg:grid-cols-3">
             {/* Left 2 cols: snapshot sections, scrolls normally */}

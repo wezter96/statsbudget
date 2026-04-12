@@ -20,6 +20,7 @@ export async function getBudgetYears(): Promise<number[]> {
     .from('fact_budget')
     .select('year_id')
     .eq('is_revenue', false)
+    .eq('budget_type', 'actual')
     .is('anslag_id', null);
   if (error) throw error;
   const set = new Set<number>((data as { year_id: number }[]).map((r) => r.year_id));

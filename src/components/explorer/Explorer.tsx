@@ -3,19 +3,19 @@ import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 import {
-  getYears, getBudgetYears, getAreas, getParties, getBudgetByYear, getAllTimeSeries,
-  getAreaTimeSeries, getPartyComparison, convertAmount, formatAmount,
+  getYears, getBudgetYears, getAreas, getBudgetByYear, getAllTimeSeries,
+  getAreaTimeSeries, convertAmount, formatAmount,
 } from '@/lib/budget-queries';
-import type { DisplayMode, DimYear, DimArea, DimParty, FactBudget } from '@/lib/supabase-types';
+import type { DisplayMode, DimYear, DimArea, FactBudget } from '@/lib/supabase-types';
 import ModeSelector from './ModeSelector';
 import YearPicker from './YearPicker';
 import YearRangeSlider from './YearRangeSlider';
-import PartyToggle from './PartyToggle';
 import BudgetPieTable from './BudgetPieTable';
 import CategoryFilter from './CategoryFilter';
 import TimeSeriesChart from './TimeSeriesChart';
-import DeltaBarChart from './DeltaBarChart';
 import MobileBarList from './MobileBarList';
+import BudgetBalanceChart from './BudgetBalanceChart';
+import PartyBudgetComparison from './PartyBudgetComparison';
 import { TreemapSkeleton, ChartSkeleton } from '@/components/Skeletons';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useActiveLang, formatMkrLocalized, localizeAreaName } from '@/lib/area-i18n';
@@ -30,7 +30,6 @@ const Explorer = () => {
   const urlYear = searchParams.get('year');
   const urlMode = searchParams.get('mode') as DisplayMode | null;
   const urlArea = searchParams.get('area');
-  const urlCompare = searchParams.get('compare');
   const urlFrom = searchParams.get('from');
   const urlTo = searchParams.get('to');
   const urlAreas = searchParams.get('areas');
@@ -40,10 +39,6 @@ const Explorer = () => {
   // budgetYears loads. Using 0 avoids an initial fetch of a stale hardcoded year.
   const [selectedYear, setSelectedYear] = useState<number>(urlYear ? Number(urlYear) : 0);
   const [selectedAreaId, setSelectedAreaId] = useState<number | undefined>(urlArea ? Number(urlArea) : undefined);
-  const [partyCompareEnabled, setPartyCompareEnabled] = useState(!!urlCompare);
-  const [selectedPartyIds, setSelectedPartyIds] = useState<number[]>(
-    urlCompare ? urlCompare.split(',').map(Number).filter(Boolean) : []
-  );
   const [yearFrom, setYearFrom] = useState(urlFrom ? Number(urlFrom) : 0);
   const [yearTo, setYearTo] = useState(urlTo ? Number(urlTo) : 0);
   // When `undefined` it means "not yet hydrated"; hydrate to all area IDs once
@@ -56,14 +51,12 @@ const Explorer = () => {
   const { data: years } = useQuery({ queryKey: ['years'], queryFn: getYears });
   const { data: budgetYears } = useQuery({ queryKey: ['budget_years'], queryFn: getBudgetYears });
   const { data: areas } = useQuery({ queryKey: ['areas'], queryFn: getAreas });
-  const { data: parties } = useQuery({ queryKey: ['parties'], queryFn: getParties });
 
   // Sync state to URL — skip placeholder 0 values until they hydrate
   useEffect(() => {
     if (!selectedYear || !yearTo || !areas || selectedCategoryIds === undefined) return;
     const params: Record<string, string> = { year: String(selectedYear), mode };
     if (selectedAreaId) params.area = String(selectedAreaId);
-    if (partyCompareEnabled && selectedPartyIds.length) params.compare = selectedPartyIds.join(',');
     params.from = String(yearFrom);
     params.to = String(yearTo);
     // Only write `areas` when it's a genuine subset (not all selected)
@@ -71,7 +64,7 @@ const Explorer = () => {
       params.areas = selectedCategoryIds.join(',');
     }
     setSearchParams(params, { replace: true });
-  }, [selectedYear, mode, selectedAreaId, partyCompareEnabled, selectedPartyIds, yearFrom, yearTo, selectedCategoryIds, areas, setSearchParams]);
+  }, [selectedYear, mode, selectedAreaId, yearFrom, yearTo, selectedCategoryIds, areas, setSearchParams]);
 
   // Only expose years that actually have fact_budget rows — hides SCB-only years
   const regularYears = useMemo(() => budgetYears ?? [], [budgetYears]);
@@ -121,11 +114,6 @@ const Explorer = () => {
     enabled: yearFrom > 0 && yearTo > 0,
   });
 
-  const { data: partyData } = useQuery({
-    queryKey: ['party-comparison', selectedYear, selectedPartyIds],
-    queryFn: () => getPartyComparison(selectedYear, selectedPartyIds),
-    enabled: partyCompareEnabled && selectedPartyIds.length > 0,
-  });
 
   // Pie/treemap data — one row per utgiftsområde for the selected year
   const pieRows = useMemo(() => {
@@ -179,22 +167,6 @@ const Explorer = () => {
   // Ranked area ids by current-year spend — used by "Topp N" presets in the filter
   const rankedAreaIds = useMemo(() => pieRows.map((r) => r.area.area_id), [pieRows]);
 
-  // Delta data
-  const deltaData = useMemo(() => {
-    if (!partyData || !govBudgetData || !areas || !parties) return [];
-    return govBudgetData
-      .filter(f => areas.some(a => a.area_id === f.area_id))
-      .map(f => {
-        const area = areas.find(a => a.area_id === f.area_id)!;
-        const deltas = selectedPartyIds.map(pid => {
-          const party = parties.find(p => p.party_id === pid)!;
-          const shadow = partyData.find(pd => pd.area_id === f.area_id && pd.party_id === pid);
-          return { party, delta: shadow?.amount_nominal_sek || 0 };
-        });
-        return { area, govAmount: f.amount_nominal_sek, deltas };
-      })
-      .sort((a, b) => b.govAmount - a.govAmount);
-  }, [partyData, govBudgetData, areas, parties, selectedPartyIds]);
 
   const handleAreaClick = useCallback((areaId: number) => {
     setSelectedAreaId(prev => prev === areaId ? undefined : areaId);
@@ -277,13 +249,7 @@ const Explorer = () => {
               />
             </div>
 
-            {partyCompareEnabled && selectedPartyIds.length > 0 ? (
-              deltaData.length > 0 ? (
-                <DeltaBarChart data={deltaData} mode={mode} />
-              ) : (
-                <p className="text-center text-muted-foreground py-12">{t('explorer.noData')}</p>
-              )
-            ) : budgetLoading ? (
+            {budgetLoading ? (
               <TreemapSkeleton />
             ) : pieRows.length > 0 ? (
               isMobile ? (
@@ -303,6 +269,15 @@ const Explorer = () => {
             ) : (
               <p className="text-center text-muted-foreground py-12">{t('explorer.noData')}</p>
             )}
+          </div>
+
+          {/* Politik section: budget balance + party comparison */}
+          <div className="space-y-10 rounded-xl bg-muted/30 p-6 ring-1 ring-border/60">
+            <h2 className="font-display text-xl font-semibold text-foreground">
+              {t('explorer.politicsHeading')}
+            </h2>
+            <BudgetBalanceChart />
+            <PartyBudgetComparison />
           </div>
 
           {/* Secondary view: time series over year range, with its own controls */}
@@ -331,15 +306,6 @@ const Explorer = () => {
                   from={yearFrom}
                   to={yearTo}
                   onChange={(f, t) => { setYearFrom(f); setYearTo(t); }}
-                />
-              )}
-              {parties && (
-                <PartyToggle
-                  enabled={partyCompareEnabled}
-                  onToggle={() => setPartyCompareEnabled(!partyCompareEnabled)}
-                  parties={parties}
-                  selectedPartyIds={selectedPartyIds}
-                  onPartiesChange={setSelectedPartyIds}
                 />
               )}
             </div>
