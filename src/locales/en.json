@@ -120,8 +120,8 @@
     "noMatch": "No tax expenditures match your search.",
     "comparison": {
       "heading": "Who benefits? A comparison",
-      "intro": "Many tax expenditures are available to everyone, but they disproportionately benefit those with high incomes or who own property and capital — the higher the income and more expensive the home, the larger the tax break in absolute terms. Here we compare these with means-tested benefits for the poor and migration costs. Click a row to read more.",
-      "ratio": "For every krona in means-tested benefits for the poor, roughly <strong>3 kronor</strong> go to tax subsidies that disproportionately benefit high earners.",
+      "intro": "Many tax expenditures are available to everyone, but they disproportionately benefit those with high incomes or who own property and capital — the higher the income and more expensive the home, the larger the tax break in absolute terms. Here we compare these with means-tested benefits that disproportionately support low earners and the poor, as well as migration costs. Click a row to read more.",
+      "ratio": "For every krona in means-tested benefits that disproportionately support low earners and the poor, roughly <strong>3 kronor</strong> go to tax subsidies that disproportionately benefit high earners and the wealthy.",
       "source": "Source",
       "post": "Item",
       "noteTitle": "Note:",
@@ -133,8 +133,8 @@
           "barLabel": "High earners"
         },
         "poor": {
-          "title": "Means-tested benefits for the poor",
-          "barLabel": "Poor"
+          "title": "Means-tested benefits that disproportionately support low earners and the poor",
+          "barLabel": "Low earners"
         },
         "migration": {
           "title": "Migration (EA 8 + EA 13)",

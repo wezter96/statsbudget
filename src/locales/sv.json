@@ -120,8 +120,8 @@
     "noMatch": "Inga skatteutgifter matchar din sökning.",
     "comparison": {
       "heading": "Vem gynnas? En jämförelse",
-      "intro": "Många skatteutgifter kan användas av alla, men de ger oproportionerligt mycket till den som tjänar bra eller äger bostad och kapital — ju högre inkomst och dyrare bostad, desto större skattelättnad i kronor. Här jämför vi dessa med behovsprövade bidrag till de fattiga och kostnader för migration. Klicka på en rad för att läsa mer.",
-      "ratio": "För varje krona i behovsprövade bidrag till de fattiga går ungefär <strong>3 kronor</strong> i skattesubventioner som oproportionerligt gynnar höginkomsttagare.",
+      "intro": "Många skatteutgifter kan användas av alla, men de ger oproportionerligt mycket till den som tjänar bra eller äger bostad och kapital — ju högre inkomst och dyrare bostad, desto större skattelättnad i kronor. Här jämför vi dessa med behovsprövade bidrag som oproportionerligt gynnar låginkomsttagare och fattiga, samt kostnader för migration. Klicka på en rad för att läsa mer.",
+      "ratio": "För varje krona i behovsprövade bidrag som oproportionerligt gynnar låginkomsttagare och fattiga går ungefär <strong>3 kronor</strong> i skattesubventioner som oproportionerligt gynnar höginkomsttagare och förmögna.",
       "source": "Källa",
       "post": "Post",
       "noteTitle": "Notera:",
@@ -133,8 +133,8 @@
           "barLabel": "Höginkomsttagare"
         },
         "poor": {
-          "title": "Behovsprövade bidrag till de fattiga",
-          "barLabel": "Fattiga"
+          "title": "Behovsprövade bidrag som oproportionerligt gynnar låginkomsttagare och fattiga",
+          "barLabel": "Låginkomsttagare"
         },
         "migration": {
           "title": "Migration (UO 8 + UO 13)",
