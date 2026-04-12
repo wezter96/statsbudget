@@ -73,7 +73,7 @@ const Header = () => {
       {menuOpen && (
         <nav
           aria-label="Mobilnavigation"
-          className="sm:hidden border-t border-border/60 bg-background/95 backdrop-blur-lg"
+          className="sm:hidden border-t border-border/60 bg-background/95 backdrop-blur-lg animate-in slide-in-from-top-2 fade-in duration-200"
         >
           <div className="container py-2 flex flex-col gap-1">
             {links.map((link) => {

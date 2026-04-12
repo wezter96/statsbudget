@@ -18,9 +18,9 @@ echarts.use([PieChart, TooltipComponent, CanvasRenderer]);
 
 export interface PieRow {
   area: DimArea;
-  value: number;       // value in current display mode
-  rawAmount: number;   // raw Mkr for drill-down math
-  pct: number;         // share of total
+  value: number;
+  rawAmount: number;
+  pct: number;
 }
 
 interface Props {
@@ -30,11 +30,6 @@ interface Props {
   yearData?: DimYear;
 }
 
-/**
- * Pie chart + synced table.
- * - Hover slice ↔ row highlight (bidirectional via echarts dispatchAction).
- * - Click row → inline expands to show a nested anslag pie.
- */
 const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
   const { t } = useTranslation();
   const localizeArea = useAreaName();
@@ -52,7 +47,6 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
         name: localizeArea(r.area.name_sv),
         value: r.value,
         areaId: r.area.area_id,
-        // colour key stays Swedish so the same category always gets the same hue
         itemStyle: { color: stableColor(r.area.name_sv) },
       })),
     [rows, localizeArea],
@@ -77,7 +71,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
           radius: ['42%', '74%'],
           center: ['50%', '50%'],
           avoidLabelOverlap: true,
-          minAngle: 3,              // guarantee tiny slices stay visible + clickable
+          minAngle: 3,
           padAngle: 0.5,
           itemStyle: {
             borderRadius: 2,
@@ -103,7 +97,6 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
     [pieData, mode, prefersReducedMotion],
   );
 
-  // Hover a table row → tell echarts to highlight the matching slice
   const highlightSlice = useCallback((idx: number | null) => {
     const chart = chartRef.current?.getEchartsInstance?.();
     if (!chart) return;
@@ -115,7 +108,6 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
     chart.dispatchAction({ type: 'highlight', seriesIndex: 0, dataIndex: idx });
   }, []);
 
-  // Hover a pie slice → highlight the row
   const onChartEvents = useMemo(
     () => ({
       mouseover: (e: any) => {
@@ -146,15 +138,14 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
       </div>
 
       <div className="lg:col-span-3 min-w-0">
-        <div className="relative overflow-hidden rounded-xl bg-card ring-1 ring-border/60 max-h-[70vh] sm:max-h-[520px] lg:max-h-none lg:h-[520px]">
-          <div className="h-full overflow-y-auto pr-1 [scrollbar-gutter:stable] [scrollbar-color:theme(colors.border)_transparent]">
+        <div className="rounded-xl bg-card ring-1 ring-border/60 max-h-[70vh] sm:max-h-[520px] lg:max-h-none lg:h-[520px] overflow-y-auto overflow-x-hidden relative">
           <table className="w-full text-sm table-fixed">
             <colgroup>
-              <col className="w-8 sm:w-10" />
+              <col className="w-7 sm:w-10" />
               <col />
-              <col className="w-24 sm:w-28" />
-              <col className="w-0 sm:w-16 hidden sm:table-column" />
-              <col className="w-0 sm:w-8 hidden sm:table-column" />
+              <col className="w-[5.5rem] sm:w-28" />
+              <col className="w-0 sm:w-16" />
+              <col className="w-0 sm:w-8" />
             </colgroup>
             <thead className="sticky top-0 z-10 bg-muted/90 backdrop-blur">
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
@@ -162,7 +153,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
                 <th className="px-2 sm:px-3 py-2 font-medium">{t('explorer.table.area')}</th>
                 <th className="px-2 sm:px-3 py-2 font-medium text-right">{t('explorer.amount')}</th>
                 <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell">{t('explorer.share')}</th>
-                <th className="px-1 sm:px-2 py-2 hidden sm:table-cell" aria-hidden="true"></th>
+                <th className="px-1 sm:px-2 py-2 hidden sm:table-cell" aria-hidden="true" />
               </tr>
             </thead>
             <tbody>
@@ -185,7 +176,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
                         setExpandedAreaId((prev) => (prev === r.area.area_id ? null : r.area.area_id))
                       }
                       className={cn(
-                        'cursor-pointer border-t border-border/50 transition-colors',
+                        'cursor-pointer border-t border-border/50 transition-colors row-press',
                         isHover && 'bg-primary/5',
                         isExpanded && 'bg-primary/10',
                       )}
@@ -208,33 +199,37 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
                         {r.pct.toFixed(1)}%
                       </td>
                       <td className="px-1 sm:px-2 py-2.5 text-muted-foreground hidden sm:table-cell">
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4" />
-                        )}
+                        <ChevronDown className={cn('h-4 w-4 transition-transform duration-200', !isExpanded && '-rotate-90')} />
                       </td>
                     </tr>
-                    {isExpanded && (
-                      <tr className="bg-muted/30">
-                        <td colSpan={5} className="px-3 sm:px-4 py-3 sm:py-4">
-                          <AnslagBreakdown
-                            areaId={r.area.area_id}
-                            areaName={r.area.name_sv}
-                            year={year}
-                          />
-                        </td>
-                      </tr>
-                    )}
+                    <tr>
+                      <td colSpan={5} className="p-0 border-0">
+                        <div
+                          className={cn(
+                            'grid transition-[grid-template-rows] duration-300 ease-in-out',
+                            isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                          )}
+                        >
+                          <div className="overflow-hidden">
+                            <div className="bg-muted/30 px-3 sm:px-4 py-3 sm:py-4">
+                              <AnslagBreakdown
+                                areaId={r.area.area_id}
+                                areaName={r.area.name_sv}
+                                year={year}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
                   </Fragment>
                 );
               })}
             </tbody>
           </table>
-          </div>
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-card to-transparent"
+            className="pointer-events-none sticky inset-x-0 bottom-0 h-10 bg-gradient-to-t from-card to-transparent"
           />
         </div>
       </div>
@@ -278,7 +273,7 @@ const AnslagBreakdown = ({ areaId, areaName, year }: AnslagBreakdownProps) => {
         return {
           id: f.anslag_id!,
           name: meta ? `${meta.code} · ${meta.name}` : `Anslag ${f.anslag_id}`,
-          amount: f.amount_nominal_sek, // Mkr
+          amount: f.amount_nominal_sek,
         };
       })
       .sort((a, b) => b.amount - a.amount);
@@ -336,7 +331,7 @@ const AnslagBreakdown = ({ areaId, areaName, year }: AnslagBreakdownProps) => {
         <ReactEChartsCore
           echarts={echarts}
           option={option}
-          style={{ height: window.innerWidth < 640 ? '180px' : '220px', width: '100%' }}
+          style={{ height: '180px', width: '100%' }}
           aria-label={`Anslag i ${areaName}`}
         />
       </div>

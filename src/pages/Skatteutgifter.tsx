@@ -94,25 +94,29 @@ function ExpandableRow({ item, t }: { item: ComparisonItem; t: TFunction }) {
         <td className="px-4 py-3 font-medium text-foreground">
           <div className="flex items-center gap-2">
             <ChevronDown
-              className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform ${open ? 'rotate-0' : '-rotate-90'}`}
+              className={`h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200 ${open ? 'rotate-0' : '-rotate-90'}`}
             />
             {name}
           </div>
         </td>
         <td className="px-4 py-3 text-right tabular-nums whitespace-nowrap">{item.amount}</td>
       </tr>
-      {open && (
-        <tr className="border-t border-border/50">
-          <td colSpan={2} className="px-4 py-3 pl-10">
-            <p className="text-sm text-muted-foreground leading-relaxed">{detail}</p>
-            {item.source && (
-              <p className="mt-1 text-xs text-muted-foreground/70">
-                {t('skatteutgifter.comparison.source')}: {item.source}
-              </p>
-            )}
-          </td>
-        </tr>
-      )}
+      <tr>
+        <td colSpan={2} className="p-0 border-0">
+          <div className={`grid transition-[grid-template-rows] duration-300 ease-in-out ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+            <div className="overflow-hidden">
+              <div className="px-4 py-3 pl-10">
+                <p className="text-sm text-muted-foreground leading-relaxed">{detail}</p>
+                {item.source && (
+                  <p className="mt-1 text-xs text-muted-foreground/70">
+                    {t('skatteutgifter.comparison.source')}: {item.source}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </td>
+      </tr>
     </>
   );
 }

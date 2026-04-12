@@ -97,6 +97,12 @@
       transition: none;
     }
   }
+
+  /* Press feedback for interactive rows */
+  .row-press:active {
+    background-color: hsl(var(--primary) / 0.08);
+    transition: background-color 0.05s;
+  }
 }
 
 @media (min-width: 640px) {
