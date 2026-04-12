@@ -148,7 +148,14 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData }: Props) => {
       <div className="lg:col-span-3 min-w-0">
         <div className="relative overflow-hidden rounded-xl bg-card ring-1 ring-border/60 max-h-[420px] lg:max-h-none lg:h-[520px]">
           <div className="h-full overflow-y-auto pr-1 [scrollbar-gutter:stable] [scrollbar-color:theme(colors.border)_transparent]">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm table-fixed">
+            <colgroup>
+              <col className="w-8 sm:w-10" />
+              <col />
+              <col className="w-24 sm:w-28" />
+              <col className="w-0 sm:w-16 hidden sm:table-column" />
+              <col className="w-0 sm:w-8 hidden sm:table-column" />
+            </colgroup>
             <thead className="sticky top-0 z-10 bg-muted/90 backdrop-blur">
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="px-2 sm:px-3 py-2 font-medium">#</th>
