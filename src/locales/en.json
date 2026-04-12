@@ -94,6 +94,7 @@
     "explorer": "Explore",
     "historical": "Historical",
     "skatteutgifter": "Tax expenditures",
+    "skatteintakter": "Tax revenues",
     "about": "About"
   },
   "skatteutgifter": {
@@ -219,6 +220,31 @@
         }
       }
     }
+  },
+  "skatteintakter": {
+    "title": "Tax revenues",
+    "intro": "Where does the government's money come from? This page shows how total tax revenues are distributed across different tax types and income categories, and how they have changed over time.",
+    "disclosure": "Data sourced from ESV (Swedish National Financial Management Authority) covering the state budget's revenue side. Some years are forecasts.",
+    "pieHeading": "Revenue breakdown",
+    "trendHeading": "Trends over time",
+    "tableHeading": "All income titles",
+    "col": {
+      "name": "Income title",
+      "amount": "Amount (Mkr)",
+      "share": "Share",
+      "change": "Change"
+    },
+    "year": "Year",
+    "total": "Total revenue",
+    "totalChange": "vs previous year",
+    "search": "Search",
+    "searchPlaceholder": "Search income title...",
+    "noData": "No data available for the selected year.",
+    "noMatch": "No income titles match your search.",
+    "estimated": "forecast",
+    "unit": "Mkr",
+    "sourcesLabel": "Sources",
+    "caveat": "Amounts refer to the state budget's revenue side. Municipal taxes are partly reported separately. Some years are forecasts, not actuals."
   },
   "footer": {
     "tagline": "An independent visualization of the Swedish state budget. Based on official data from ESV, SCB and the Riksdag.",

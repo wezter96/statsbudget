@@ -94,6 +94,7 @@
     "explorer": "Utforska",
     "historical": "Historiskt",
     "skatteutgifter": "Skatteutgifter",
+    "skatteintakter": "Skatteintäkter",
     "about": "Om"
   },
   "skatteutgifter": {
@@ -219,6 +220,31 @@
         }
       }
     }
+  },
+  "skatteintakter": {
+    "title": "Skatteintäkter",
+    "intro": "Varifrån kommer statens pengar? Här visas hur de totala skatteintäkterna fördelar sig mellan olika skatte- och inkomsttyper, och hur de har utvecklats över tid.",
+    "disclosure": "Uppgifterna kommer från Ekonomistyrningsverket (ESV) och avser statsbudgetens inkomstsida. Vissa år är prognoser.",
+    "pieHeading": "Fördelning av skatteintäkter",
+    "trendHeading": "Utveckling över tid",
+    "tableHeading": "Alla inkomsttitlar",
+    "col": {
+      "name": "Inkomsttitel",
+      "amount": "Belopp (Mkr)",
+      "share": "Andel",
+      "change": "Förändring"
+    },
+    "year": "År",
+    "total": "Totala intäkter",
+    "totalChange": "mot föregående år",
+    "search": "Sök",
+    "searchPlaceholder": "Sök inkomsttitel...",
+    "noData": "Ingen data tillgänglig för valt år.",
+    "noMatch": "Inga inkomsttitlar matchar din sökning.",
+    "estimated": "prognos",
+    "unit": "Mkr",
+    "sourcesLabel": "Källor",
+    "caveat": "Beloppen avser statsbudgetens inkomstsida. Kommunalskatt redovisas delvis separat. Vissa år är prognoser, inte utfall."
   },
   "footer": {
     "tagline": "En oberoende visualisering av den svenska statsbudgeten. Baserad på officiell data från ESV, SCB och Riksdagen.",
