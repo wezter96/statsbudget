@@ -5,9 +5,13 @@ export const DEFAULT_PLAUSIBLE_SCRIPT_SRC = 'https://plausible.io/js/script.js';
 export const STATIC_SITE_ROUTES = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   { path: '/historical', changefreq: 'monthly', priority: '0.7' },
+  { path: '/skatteutgifter', changefreq: 'monthly', priority: '0.7' },
+  { path: '/skatteintakter', changefreq: 'monthly', priority: '0.7' },
   { path: '/about', changefreq: 'monthly', priority: '0.5' },
   { path: '/en', changefreq: 'weekly', priority: '0.9' },
   { path: '/en/historical', changefreq: 'monthly', priority: '0.6' },
+  { path: '/en/tax-expenditures', changefreq: 'monthly', priority: '0.6' },
+  { path: '/en/tax-revenues', changefreq: 'monthly', priority: '0.6' },
   { path: '/en/about', changefreq: 'monthly', priority: '0.4' },
 ] as const;
 

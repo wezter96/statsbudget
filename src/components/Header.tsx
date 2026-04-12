@@ -19,6 +19,7 @@ const Header = () => {
     { to: '/', label: t('nav.explorer') },
     { to: '/historical', label: t('nav.historical') },
     { to: '/skatteutgifter', label: t('nav.skatteutgifter') },
+    { to: '/skatteintakter', label: t('nav.skatteintakter') },
     { to: '/about', label: t('nav.about') },
   ];
 

@@ -11,6 +11,7 @@ import Index from "./pages/Index";
 import Historical from "./pages/Historical";
 import About from "./pages/About";
 import Skatteutgifter from "./pages/Skatteutgifter";
+import Skatteintakter from "./pages/Skatteintakter";
 import DevTaxGaps from "./pages/DevTaxGaps";
 import NotFound from "./pages/NotFound";
 
@@ -30,12 +31,14 @@ const App = () => (
             <Route path="/" element={withLang(<Index />)} />
             <Route path="/historical" element={withLang(<Historical />)} />
             <Route path="/skatteutgifter" element={withLang(<Skatteutgifter />)} />
+            <Route path="/skatteintakter" element={withLang(<Skatteintakter />)} />
             <Route path="/about" element={withLang(<About />)} />
 
             {/* English (/en prefix) */}
             <Route path="/en" element={withLang(<Index />)} />
             <Route path="/en/historical" element={withLang(<Historical />)} />
             <Route path="/en/tax-expenditures" element={withLang(<Skatteutgifter />)} />
+            <Route path="/en/tax-revenues" element={withLang(<Skatteintakter />)} />
             <Route path="/en/about" element={withLang(<About />)} />
 
             {/* DEV-only review pages — gated inside the component via
