@@ -151,7 +151,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
               <colgroup>
                 <col className="w-7 sm:w-10" />
                 <col />
-                <col className="w-[8rem] sm:w-40" />
+                <col className="w-[6.5rem] sm:w-40" />
                 <col className="w-0 sm:w-16" />
                 <col className="w-0 sm:w-8" />
               </colgroup>
@@ -225,7 +225,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
                         {compareActive ? (
                           <span>{mkr(r.rawAmount)}</span>
                         ) : (
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="flex flex-col items-end gap-0.5 sm:flex-row sm:items-center sm:justify-end sm:gap-1.5">
                             <span>{mkr(r.rawAmount)}</span>
                             {r.changePct != null && (
                               <span className={cn(
