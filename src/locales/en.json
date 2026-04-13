@@ -242,6 +242,8 @@
     "noData": "No data available for the selected year.",
     "noMatch": "No income titles match your search.",
     "estimated": "forecast",
+    "forecastCalloutTitle": "Forecast",
+    "forecastCalloutBody": "The figures for {{year}} are forecasts from the budget bill, not actual outcomes. The latest actual year is {{latestActualYear}}.",
     "unit": "Mkr",
     "sourcesLabel": "Sources",
     "caveat": "Amounts refer to the state budget's revenue side. Municipal taxes are partly reported separately. Some years are forecasts, not actuals."

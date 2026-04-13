@@ -20,6 +20,7 @@ export interface IncomePieRow {
   amount_mkr: number;
   pct: number;
   changePct?: number | null;
+  compareAmount?: number | null;
   is_estimated?: boolean;
 }
 
@@ -27,9 +28,11 @@ interface Props {
   rows: IncomePieRow[];
   year: number;
   facts: FactIncome[];
+  compareActive?: boolean;
+  compareYear?: number | null;
 }
 
-const IncomePieChart = ({ rows, year, facts }: Props) => {
+const IncomePieChart = ({ rows, year, facts, compareActive = false, compareYear = null }: Props) => {
   const { t, i18n } = useTranslation();
   const isEn = i18n.language?.startsWith('en');
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -143,20 +146,39 @@ const IncomePieChart = ({ rows, year, facts }: Props) => {
       <div className="lg:col-span-3 min-w-0">
         <div className="rounded-xl bg-card ring-1 ring-border/60 max-h-[70vh] sm:max-h-[520px] lg:max-h-none lg:h-[520px] overflow-y-auto overflow-x-hidden relative">
           <table className="w-full text-sm table-fixed">
-            <colgroup>
-              <col className="w-7 sm:w-10" />
-              <col />
-              <col className="w-[8rem] sm:w-40" />
-              <col className="w-0 sm:w-16" />
-              <col className="w-0 sm:w-8" />
-            </colgroup>
+            {!compareActive && (
+              <colgroup>
+                <col className="w-7 sm:w-10" />
+                <col />
+                <col className="w-[8rem] sm:w-40" />
+                <col className="w-0 sm:w-16" />
+                <col className="w-0 sm:w-8" />
+              </colgroup>
+            )}
             <thead className="sticky top-0 z-10 bg-muted/90 backdrop-blur">
               <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-2 sm:px-3 py-2 font-medium">#</th>
-                <th className="px-2 sm:px-3 py-2 font-medium">{t('skatteintakter.col.name')}</th>
-                <th className="px-2 sm:px-3 py-2 font-medium text-right">{t('skatteintakter.col.amount')}</th>
-                <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell">{t('skatteintakter.col.share')}</th>
-                <th className="px-1 sm:px-2 py-2 hidden sm:table-cell" aria-hidden="true" />
+                <th className={cn('px-2 sm:px-3 py-2 font-medium', compareActive && 'w-[5%]')}>#</th>
+                <th className={cn('px-2 sm:px-3 py-2 font-medium', compareActive && 'w-[47%] sm:w-[34%]')}>
+                  {t('skatteintakter.col.name')}
+                </th>
+                <th className={cn('px-2 sm:px-3 py-2 font-medium text-right', compareActive && 'w-[30%] sm:w-[22%]')}>
+                  {compareActive ? year : t('skatteintakter.col.amount')}
+                </th>
+                {compareActive && (
+                  <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell sm:w-[20%]">
+                    {compareYear ?? '—'}
+                  </th>
+                )}
+                {compareActive ? (
+                  <th className="px-2 sm:px-3 py-2 font-medium text-right w-[18%] sm:w-[15%]">
+                    {t('skatteintakter.col.change')}
+                  </th>
+                ) : (
+                  <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell">
+                    {t('skatteintakter.col.share')}
+                  </th>
+                )}
+                <th className={cn('px-1 sm:px-2 py-2 hidden sm:table-cell', compareActive && 'sm:w-[4%]')} aria-hidden="true" />
               </tr>
             </thead>
             <tbody>
@@ -200,27 +222,49 @@ const IncomePieChart = ({ rows, year, facts }: Props) => {
                         </div>
                       </td>
                       <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm">
-                        <div className="flex items-center justify-end gap-1.5">
+                        {compareActive ? (
                           <span>{fmtMkr(r.amount_mkr)}</span>
-                          {r.changePct != null && (
+                        ) : (
+                          <div className="flex items-center justify-end gap-1.5">
+                            <span>{fmtMkr(r.amount_mkr)}</span>
+                            {r.changePct != null && (
+                              <span className={cn(
+                                'inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium leading-none',
+                                r.changePct > 0 ? 'bg-green-100 text-green-700' : r.changePct < 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500',
+                              )}>
+                                {r.changePct > 0 ? '+' : ''}{r.changePct.toFixed(1)}%
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </td>
+                      {compareActive && (
+                        <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm text-muted-foreground hidden sm:table-cell">
+                          {r.compareAmount != null ? fmtMkr(r.compareAmount) : '—'}
+                        </td>
+                      )}
+                      {compareActive ? (
+                        <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm">
+                          {r.changePct != null ? (
                             <span className={cn(
                               'inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium leading-none',
                               r.changePct > 0 ? 'bg-green-100 text-green-700' : r.changePct < 0 ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-500',
                             )}>
                               {r.changePct > 0 ? '+' : ''}{r.changePct.toFixed(1)}%
                             </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums text-muted-foreground hidden sm:table-cell">
-                        {r.pct.toFixed(1)}%
-                      </td>
+                          ) : '—'}
+                        </td>
+                      ) : (
+                        <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums text-muted-foreground hidden sm:table-cell">
+                          {r.pct.toFixed(1)}%
+                        </td>
+                      )}
                       <td className="px-1 sm:px-2 py-2.5 text-muted-foreground hidden sm:table-cell">
                         <ChevronDown aria-hidden="true" className={cn('h-4 w-4 transition-transform duration-200', !isExpanded && '-rotate-90')} />
                       </td>
                     </tr>
                     <tr>
-                      <td colSpan={5} className="p-0 border-0">
+                      <td colSpan={compareActive ? 6 : 5} className="p-0 border-0">
                         <div
                           className={cn(
                             'grid transition-[grid-template-rows] duration-300 ease-in-out',

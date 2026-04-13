@@ -16,3 +16,36 @@ export interface IncomeFact {
   amount_mkr: number;
   is_estimated: boolean;
 }
+
+export type IncomeOutcomeLevel =
+  | 'income_type'
+  | 'income_main_group'
+  | 'income_title_group'
+  | 'income_title';
+
+export interface IncomeOutcomeTitleDef {
+  code: string;
+  parent_code: string | null;
+  level_key: IncomeOutcomeLevel;
+  name_sv: string;
+  sort_order: number;
+}
+
+export interface IncomeOutcomeMonthFact {
+  year: number;
+  month: number;
+  code: string;
+  amount_mkr: number;
+  source_year: number;
+  source_month: number;
+  source_status: string;
+}
+
+export interface IncomeOutcomeSnapshot {
+  titles: IncomeOutcomeTitleDef[];
+  facts: IncomeOutcomeMonthFact[];
+  source_year: number;
+  source_month: number;
+  source_status: string;
+  source_url: string;
+}

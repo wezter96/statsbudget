@@ -12,7 +12,13 @@
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { getMasterList, loadFacts } from './fetch-skatteintakter.ts';
-import type { IncomeTitleDef, IncomeFact } from './types.ts';
+import { fetchIncomeOutcomeSnapshot } from './fetch-income-outcomes.ts';
+import type {
+  IncomeFact,
+  IncomeOutcomeMonthFact,
+  IncomeOutcomeTitleDef,
+  IncomeTitleDef,
+} from './types.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(__dirname, '..', '..');
@@ -35,10 +41,16 @@ async function maybeConnect(): Promise<PgClient | null> {
 
 async function applyMigration(client: PgClient): Promise<void> {
   const { readFile } = await import('node:fs/promises');
-  const sqlPath = resolve(REPO_ROOT, 'supabase', 'migrations', '20260412160000_skatteintakter.sql');
-  const sql = await readFile(sqlPath, 'utf8');
-  await client.query(sql);
-  console.log('[skatteintakter] migration applied');
+  const migrationPaths = [
+    '20260412160000_skatteintakter.sql',
+    '20260412223000_income_outcomes.sql',
+  ];
+  for (const migrationPath of migrationPaths) {
+    const sqlPath = resolve(REPO_ROOT, 'supabase', 'migrations', migrationPath);
+    const sql = await readFile(sqlPath, 'utf8');
+    await client.query(sql);
+    console.log(`[skatteintakter] migration applied: ${migrationPath}`);
+  }
 }
 
 async function seedDim(
@@ -130,11 +142,135 @@ async function seedFacts(client: PgClient, facts: IncomeFact[]): Promise<void> {
   console.log(`[skatteintakter] facts seeded: ${inserted}/${facts.length}`);
 }
 
+async function ensureDimYears(client: PgClient, years: number[]): Promise<void> {
+  const uniqueYears = [...new Set(years)].sort((left, right) => left - right);
+  if (uniqueYears.length === 0) return;
+
+  const { rows } = await client.query(
+    'select year_id from public.dim_year where year_id = any($1::int[])',
+    [uniqueYears],
+  );
+  const existingYears = new Set(rows.map((row) => Number(row.year_id)));
+  const missingYears = uniqueYears.filter((year) => !existingYears.has(year));
+
+  for (const year of missingYears) {
+    await client.query(
+      `insert into public.dim_year (year_id, cpi_index, gdp_nominal_sek, is_historical)
+       values ($1, null, null, false)
+       on conflict (year_id) do nothing`,
+      [year],
+    );
+  }
+
+  if (missingYears.length > 0) {
+    console.log(`[skatteintakter] inserted missing dim_year rows: ${missingYears.join(', ')}`);
+  }
+}
+
+async function seedOutcomeDim(client: PgClient, defs: IncomeOutcomeTitleDef[]): Promise<void> {
+  const topLevel = defs.filter((definition) => definition.parent_code === null);
+  const children = defs.filter((definition) => definition.parent_code !== null);
+
+  for (const definition of topLevel) {
+    await client.query(
+      `insert into public.dim_income_outcome_title
+        (code, parent_id, name_sv, level_key, sort_order)
+       values ($1, null, $2, $3, $4)
+       on conflict (code) do update set
+         parent_id   = null,
+         name_sv     = excluded.name_sv,
+         level_key   = excluded.level_key,
+         sort_order  = excluded.sort_order`,
+      [definition.code, definition.name_sv, definition.level_key, definition.sort_order],
+    );
+  }
+
+  const { rows: dimRows } = await client.query(
+    'select income_outcome_title_id, code from public.dim_income_outcome_title',
+  );
+  const codeToId = new Map<string, number>();
+  for (const row of dimRows) {
+    codeToId.set(String(row.code), Number(row.income_outcome_title_id));
+  }
+
+  for (const definition of children) {
+    const parentId = codeToId.get(definition.parent_code!);
+    if (parentId == null) {
+      console.warn(`[skatteintakter] unknown monthly parent_code: ${definition.parent_code} for ${definition.code}`);
+      continue;
+    }
+    await client.query(
+      `insert into public.dim_income_outcome_title
+        (code, parent_id, name_sv, level_key, sort_order)
+       values ($1, $2, $3, $4, $5)
+       on conflict (code) do update set
+         parent_id   = excluded.parent_id,
+         name_sv     = excluded.name_sv,
+         level_key   = excluded.level_key,
+         sort_order  = excluded.sort_order`,
+      [definition.code, parentId, definition.name_sv, definition.level_key, definition.sort_order],
+    );
+  }
+
+  await client.query(
+    `delete from public.dim_income_outcome_title where code <> all($1::text[])`,
+    [defs.map((definition) => definition.code)],
+  );
+
+  console.log(`[skatteintakter] monthly dim seeded: ${defs.length} rows`);
+}
+
+async function seedOutcomeFacts(client: PgClient, facts: IncomeOutcomeMonthFact[]): Promise<void> {
+  if (facts.length === 0) {
+    console.warn('[skatteintakter] no monthly income outcome facts to seed');
+    return;
+  }
+
+  const { rows: codeRows } = await client.query(
+    'select income_outcome_title_id, code from public.dim_income_outcome_title',
+  );
+  const codeToId = new Map<string, number>();
+  for (const row of codeRows) {
+    codeToId.set(String(row.code), Number(row.income_outcome_title_id));
+  }
+
+  let inserted = 0;
+  for (const fact of facts) {
+    const titleId = codeToId.get(fact.code);
+    if (titleId == null) {
+      console.warn(`[skatteintakter] unknown monthly income code in fact: ${fact.code}`);
+      continue;
+    }
+    await client.query(
+      `insert into public.fact_income_outcome_month
+        (year_id, month_id, income_outcome_title_id, amount_mkr, source_year, source_month, source_status)
+       values ($1, $2, $3, $4, $5, $6, $7)`,
+      [
+        fact.year,
+        fact.month,
+        titleId,
+        fact.amount_mkr,
+        fact.source_year,
+        fact.source_month,
+        fact.source_status,
+      ],
+    );
+    inserted++;
+  }
+
+  console.log(`[skatteintakter] monthly facts seeded: ${inserted}/${facts.length}`);
+}
+
 async function main() {
   console.log('[skatteintakter] starting seeder');
   const masterList = await getMasterList();
   const facts = await loadFacts(REPO_ROOT);
+  const outcomeSnapshot = await fetchIncomeOutcomeSnapshot();
   console.log(`[skatteintakter] master list: ${masterList.length}, facts loaded: ${facts.length}`);
+  console.log(
+    `[skatteintakter] monthly outcome snapshot: ${outcomeSnapshot.titles.length} titles, ` +
+    `${outcomeSnapshot.facts.length} facts from ${outcomeSnapshot.source_year}-${String(outcomeSnapshot.source_month).padStart(2, '0')} (${outcomeSnapshot.source_status})`,
+  );
 
   const client = await maybeConnect();
   if (!client) {
@@ -147,6 +283,28 @@ async function main() {
       console.log(`  fact ${f.year}  ${f.code.padEnd(10)}  ${f.amount_mkr} Mkr  est=${f.is_estimated}`);
     }
     if (facts.length > 20) console.log(`  ... +${facts.length - 20} more facts`);
+    console.log(
+      `  monthly snapshot ${outcomeSnapshot.source_year}-${String(outcomeSnapshot.source_month).padStart(2, '0')} ` +
+      `(${outcomeSnapshot.source_status}) from ${outcomeSnapshot.source_url}`,
+    );
+    for (const title of outcomeSnapshot.titles.slice(0, 20)) {
+      console.log(
+        `  monthly-dim ${title.code.padEnd(10)} ${title.level_key.padEnd(20)} ` +
+        `${(title.parent_code ?? '(root)').padEnd(10)} ${title.name_sv}`,
+      );
+    }
+    if (outcomeSnapshot.titles.length > 20) {
+      console.log(`  ... +${outcomeSnapshot.titles.length - 20} more monthly dim rows`);
+    }
+    for (const fact of outcomeSnapshot.facts.slice(0, 20)) {
+      console.log(
+        `  monthly-fact ${fact.year}-${String(fact.month).padStart(2, '0')} ` +
+        `${fact.code.padEnd(10)} ${fact.amount_mkr} Mkr`,
+      );
+    }
+    if (outcomeSnapshot.facts.length > 20) {
+      console.log(`  ... +${outcomeSnapshot.facts.length - 20} more monthly facts`);
+    }
     return;
   }
 
@@ -154,8 +312,15 @@ async function main() {
     await applyMigration(client);
     // Truncate facts first so dim deletions don't violate FK constraints
     await client.query('truncate public.fact_income restart identity');
+    await client.query('truncate public.fact_income_outcome_month restart identity');
+    await ensureDimYears(client, [
+      ...facts.map((fact) => fact.year),
+      ...outcomeSnapshot.facts.map((fact) => fact.year),
+    ]);
     await seedDim(client, masterList);
     await seedFacts(client, facts);
+    await seedOutcomeDim(client, outcomeSnapshot.titles);
+    await seedOutcomeFacts(client, outcomeSnapshot.facts);
     console.log('[skatteintakter] done');
   } finally {
     await client.end();

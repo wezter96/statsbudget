@@ -21,10 +21,16 @@ export const SOURCES: DataSource[] = [
     name: 'Ekonomistyrningsverket',
     shortName: 'ESV',
     url: 'https://www.esv.se',
-    datasetUrl: 'https://www.statskontoret.se/psidata/arsutfall/',
+    datasetUrl: 'https://www.statskontoret.se/psidata/',
     description:
-      'Statens årsutfall per utgiftsområde och anslag 1997–2025. Öppna data (CC0), uppdateras halvårsvis.',
-    fields: ['Utfall per utgiftsområde', 'Utfall per anslag', 'Statens budget'],
+      'Statskontorets öppna budgetdata från Hermes: årsutfall per utgiftsområde och anslag samt månadsutfall för statens inkomster och utgifter.',
+    fields: [
+      'Årsutfall per utgiftsområde',
+      'Årsutfall per anslag',
+      'Årsutfall inkomster',
+      'Månadsutfall inkomster',
+      'Statens budget',
+    ],
   },
   {
     id: 'scb-cpi',

@@ -242,6 +242,8 @@
     "noData": "Ingen data tillgänglig för valt år.",
     "noMatch": "Inga inkomsttitlar matchar din sökning.",
     "estimated": "prognos",
+    "forecastCalloutTitle": "Prognos",
+    "forecastCalloutBody": "Siffrorna för {{year}} är prognoser från budgetpropositionen, inte utfall. Senaste utfallsår är {{latestActualYear}}.",
     "unit": "Mkr",
     "sourcesLabel": "Källor",
     "caveat": "Beloppen avser statsbudgetens inkomstsida. Kommunalskatt redovisas delvis separat. Vissa år är prognoser, inte utfall."

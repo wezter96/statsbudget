@@ -94,5 +94,41 @@ export interface FactIncome {
   is_estimated: boolean;
 }
 
+export type IncomeOutcomeLevel =
+  | 'income_type'
+  | 'income_main_group'
+  | 'income_title_group'
+  | 'income_title';
+
+export interface DimIncomeOutcomeTitle {
+  income_outcome_title_id: number;
+  parent_id: number | null;
+  code: string;
+  name_sv: string;
+  level_key: IncomeOutcomeLevel;
+  sort_order: number;
+}
+
+export interface FactIncomeOutcomeMonth {
+  fact_income_outcome_month_id: number;
+  year_id: number;
+  month_id: number;
+  income_outcome_title_id: number;
+  amount_mkr: number;
+  source_year: number;
+  source_month: number;
+  source_status: string;
+}
+
+export interface FactIncomeOutcomeQuarterly {
+  year_id: number;
+  quarter_id: number;
+  income_outcome_title_id: number;
+  amount_mkr: number;
+  source_year: number;
+  source_month: number;
+  source_status: string;
+}
+
 export type DisplayMode = 'total_pct' | 'real' | 'nominal' | 'gdp_pct';
 export type DrillLevel = 'area' | 'anslag';

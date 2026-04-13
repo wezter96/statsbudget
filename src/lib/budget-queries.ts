@@ -2,7 +2,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type {
   DimYear, DimArea, DimAnslag, DimParty, FactBudget, FactHistorical, DisplayMode,
   DimSkatteutgift, FactSkatteutgift,
-  DimIncomeTitle, FactIncome,
+  DimIncomeTitle, DimIncomeOutcomeTitle, FactIncome, FactIncomeOutcomeMonth, FactIncomeOutcomeQuarterly,
 } from './supabase-types';
 
 // The tables exist in the DB but aren't in the auto-generated types yet.
@@ -169,6 +169,35 @@ export async function getIncomeTimeSeries(): Promise<FactIncome[]> {
     .order('year_id', { ascending: true });
   if (error) throw error;
   return (data ?? []) as FactIncome[];
+}
+
+export async function getIncomeOutcomeTitles(): Promise<DimIncomeOutcomeTitle[]> {
+  const { data, error } = await db
+    .from('dim_income_outcome_title')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as DimIncomeOutcomeTitle[];
+}
+
+export async function getIncomeOutcomeMonthly(year: number): Promise<FactIncomeOutcomeMonth[]> {
+  const { data, error } = await db
+    .from('fact_income_outcome_month')
+    .select('*')
+    .eq('year_id', year)
+    .order('month_id', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as FactIncomeOutcomeMonth[];
+}
+
+export async function getIncomeOutcomeQuarterly(year: number): Promise<FactIncomeOutcomeQuarterly[]> {
+  const { data, error } = await db
+    .from('v_income_outcome_quarterly')
+    .select('*')
+    .eq('year_id', year)
+    .order('quarter_id', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as FactIncomeOutcomeQuarterly[];
 }
 
 export function convertAmount(amount: number, mode: DisplayMode, yearData: DimYear, totalForYear?: number): number {

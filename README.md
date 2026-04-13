@@ -21,11 +21,12 @@ Live site: [statsbudget.se](https://statsbudget.se)
 | Source | Dataset | Coverage |
 |---|---|---|
 | ESV / Statskontoret | Årsutfall statsbudget per utgiftsområde + anslag (CSV, CC0) | 1997–2025 |
+| ESV / Statskontoret | Månadsutfall inkomster (CSV/ZIP) | 2006–pågående |
 | SCB PxWebApi 2 | KPI fastställda årsmedel (TAB4352) | 1980–2025 |
 | SCB PxWebApi 2 | BNP till marknadspris, löpande priser (TAB4553) | 1981–2025 |
 | Riksdagen | Finansutskottets betänkanden 1975:FiU48, 1979/80:FiU50, 1984/85:FiU37 | 1975/76, 1980/81, 1985/86 |
 
-All seeding is idempotent. See `scripts/seed.ts` and `scripts/seed-historical.ts`.
+All seeding is idempotent. See `scripts/seed.ts`, `scripts/skatteintakter/seed-skatteintakter.ts`, and `scripts/seed-historical.ts`.
 
 ## Local development
 
@@ -81,6 +82,9 @@ Open Graph images are served directly from the Supabase `og` Edge Function becau
 ```bash
 # Apply schema + seed modern (2000–2025) ESV + SCB data
 bun --env-file=.env.local scripts/seed.ts
+
+# Seed tax revenue annual series + monthly outcomes from Statskontoret/ESV
+bun --env-file=.env.local scripts/skatteintakter/seed-skatteintakter.ts
 
 # Seed 1975/1980/1985 historical snapshots from Riksdagen betänkanden
 bun --env-file=.env.local scripts/seed-historical.ts
