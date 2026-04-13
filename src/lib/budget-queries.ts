@@ -137,6 +137,15 @@ export async function getIncomeGroups(): Promise<DimIncomeTitle[]> {
   return (data ?? []) as DimIncomeTitle[];
 }
 
+export async function getAllIncomeTitles(): Promise<DimIncomeTitle[]> {
+  const { data, error } = await db
+    .from('dim_income_title')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as DimIncomeTitle[];
+}
+
 export async function getIncomeSubtitles(parentId: number): Promise<DimIncomeTitle[]> {
   const { data, error } = await db
     .from('dim_income_title')

@@ -246,6 +246,11 @@
     "forecastCalloutBody": "Siffrorna för {{year}} är prognoser från budgetpropositionen, inte utfall. Senaste utfallsår är {{latestActualYear}}.",
     "unit": "Mkr",
     "sourcesLabel": "Källor",
+    "flowTitle": "Vart går pengarna?",
+    "flowMunicipalities": "Kommuner (kommunalskatt)",
+    "flowPension": "Pensionssystemet",
+    "flowState": "Statsbudgeten & övrigt",
+    "flowNote": "Totalen inkluderar skatter som staten samlar in åt kommuner och pensionssystemet. Därför är den högre än statsbudgetens utgifter.",
     "caveat": "Beloppen avser statsbudgetens inkomstsida. Kommunalskatt redovisas delvis separat. Vissa år är prognoser, inte utfall."
   },
   "footer": {

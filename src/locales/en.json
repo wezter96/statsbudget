@@ -246,6 +246,11 @@
     "forecastCalloutBody": "The figures for {{year}} are forecasts from the budget bill, not actual outcomes. The latest actual year is {{latestActualYear}}.",
     "unit": "Mkr",
     "sourcesLabel": "Sources",
+    "flowTitle": "Where does the money go?",
+    "flowMunicipalities": "Municipalities (municipal tax)",
+    "flowPension": "Pension system",
+    "flowState": "State budget & other",
+    "flowNote": "The total includes taxes collected by the state on behalf of municipalities and the pension system. This is why it exceeds the state budget's expenditures.",
     "caveat": "Amounts refer to the state budget's revenue side. Municipal taxes are partly reported separately. Some years are forecasts, not actuals."
   },
   "footer": {

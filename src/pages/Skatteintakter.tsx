@@ -3,13 +3,16 @@ import { Helmet } from 'react-helmet-async';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
+import { Info } from 'lucide-react';
 import Layout from '@/components/Layout';
 import IncomePieChart from '@/components/income/IncomePieChart';
 import IncomeTrendChart from '@/components/income/IncomeTrendChart';
 import YearRangeSlider from '@/components/explorer/YearRangeSlider';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import {
   getIncomeGroups,
+  getAllIncomeTitles,
   getIncomeFacts,
   getIncomeTimeSeries,
 } from '@/lib/budget-queries';
@@ -20,6 +23,7 @@ const SkatteintakterPage = () => {
   const [params, setParams] = useSearchParams();
 
   const groups = useQuery({ queryKey: ['income-groups'], queryFn: getIncomeGroups });
+  const allTitles = useQuery({ queryKey: ['income-all-titles'], queryFn: getAllIncomeTitles });
   const series = useQuery({ queryKey: ['income-series'], queryFn: getIncomeTimeSeries });
 
   // Derive available years from fact data
@@ -199,6 +203,24 @@ const SkatteintakterPage = () => {
 
   const availableYearsDesc = useMemo(() => [...availableYears].reverse(), [availableYears]);
 
+  // Compute pass-through flow breakdown (municipalities, pension, state)
+  const flowBreakdown = useMemo(() => {
+    if (!allTitles.data || !facts.data || total === 0) return null;
+    const codeToId = new Map<string, number>();
+    for (const t of allTitles.data) codeToId.set(t.code, t.income_title_id);
+    const factById = new Map<number, number>();
+    for (const f of facts.data) factById.set(f.income_title_id, Number(f.amount_mkr));
+
+    const municipalId = codeToId.get('1115');
+    const pensionId = codeToId.get('1120');
+    const municipal = municipalId != null ? (factById.get(municipalId) ?? 0) : 0;
+    const pension = pensionId != null ? (factById.get(pensionId) ?? 0) : 0;
+    const state = total - municipal - pension;
+
+    if (municipal === 0 && pension === 0) return null;
+    return { municipal, pension, state };
+  }, [allTitles.data, facts.data, total]);
+
   return (
     <Layout>
       <Helmet>
@@ -239,11 +261,54 @@ const SkatteintakterPage = () => {
                 </span>
               )}
               {hasData && (
-                <span className="text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-1.5 text-sm text-muted-foreground">
                   {t('skatteintakter.total')}:{' '}
                   <span className="font-display text-base font-semibold text-foreground tabular-nums">
                     {fmtMdr(total)}
                   </span>
+                  {flowBreakdown && (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          aria-label={t('skatteintakter.flowTitle')}
+                          className="inline-flex items-center justify-center rounded-full p-0.5 text-muted-foreground/60 hover:text-foreground hover:bg-muted transition-colors"
+                        >
+                          <Info className="h-3.5 w-3.5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent side="bottom" align="start" className="w-72 text-sm">
+                        <p className="font-medium text-foreground mb-2">
+                          {t('skatteintakter.flowTitle')}
+                        </p>
+                        <ul className="space-y-1.5">
+                          <li className="flex items-center justify-between gap-2">
+                            <span className="flex items-center gap-1.5">
+                              <span className="inline-block h-2 w-2 rounded-sm bg-blue-500 shrink-0" />
+                              {t('skatteintakter.flowMunicipalities')}
+                            </span>
+                            <span className="tabular-nums font-medium text-foreground">{fmtMdr(flowBreakdown.municipal)}</span>
+                          </li>
+                          <li className="flex items-center justify-between gap-2">
+                            <span className="flex items-center gap-1.5">
+                              <span className="inline-block h-2 w-2 rounded-sm bg-emerald-500 shrink-0" />
+                              {t('skatteintakter.flowPension')}
+                            </span>
+                            <span className="tabular-nums font-medium text-foreground">{fmtMdr(flowBreakdown.pension)}</span>
+                          </li>
+                          <li className="flex items-center justify-between gap-2">
+                            <span className="flex items-center gap-1.5">
+                              <span className="inline-block h-2 w-2 rounded-sm bg-amber-500 shrink-0" />
+                              {t('skatteintakter.flowState')}
+                            </span>
+                            <span className="tabular-nums font-medium text-foreground">{fmtMdr(flowBreakdown.state)}</span>
+                          </li>
+                        </ul>
+                        <p className="mt-3 text-xs text-muted-foreground leading-relaxed">
+                          {t('skatteintakter.flowNote')}
+                        </p>
+                      </PopoverContent>
+                    </Popover>
+                  )}
                 </span>
               )}
             </div>
