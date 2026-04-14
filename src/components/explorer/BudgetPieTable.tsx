@@ -1,4 +1,4 @@
-import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
+import { Fragment, type ReactNode, useCallback, useMemo, useRef, useState } from 'react';
 import ReactEChartsCore from 'echarts-for-react/lib/core';
 import * as echarts from 'echarts/core';
 import { PieChart } from 'echarts/charts';
@@ -6,15 +6,28 @@ import { TooltipComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { stableColor, CHROME, ECHARTS_COLOR_ARRAY } from '@/lib/palette';
-import { useAreaName, useActiveLang, formatMkrLocalized } from '@/lib/area-i18n';
+import { useAreaName, useActiveLang, formatMkrLocalized, formatMkrCompact } from '@/lib/area-i18n';
 import { cn } from '@/lib/utils';
 import { formatAmount, getBudgetByYear, getAnslagByArea } from '@/lib/budget-queries';
 import SourceLink from '@/components/SourceLink';
 import type { DimArea, DimYear, DisplayMode } from '@/lib/supabase-types';
 
 echarts.use([PieChart, TooltipComponent, CanvasRenderer]);
+
+type PieTooltipParam = {
+  name: string;
+  value: number;
+  percent: number;
+};
+
+type PieEventParam = {
+  dataIndex?: number;
+  data?: {
+    areaId?: number;
+  };
+};
 
 export interface PieRow {
   area: DimArea;
@@ -33,18 +46,37 @@ interface Props {
   yearData?: DimYear;
   compareActive?: boolean;
   compareYear?: number | null;
+  allowBreakdown?: boolean;
+  categoryLabel?: string;
+  sourceLabel?: string;
+  renderDetail?: (row: PieRow) => ReactNode;
 }
 
-const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, compareYear }: Props) => {
+const BudgetPieTable = ({
+  rows,
+  mode,
+  year,
+  yearData: _yearData,
+  compareActive,
+  compareYear,
+  allowBreakdown = true,
+  categoryLabel,
+  sourceLabel = 'ESV',
+  renderDetail,
+}: Props) => {
   const { t } = useTranslation();
   const localizeArea = useAreaName();
   const lang = useActiveLang();
   const mkr = (n: number) => formatMkrLocalized(n, lang);
+  const mkrShort = (n: number) => formatMkrCompact(n, lang);
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const chartRef = useRef<any>(null);
+  const chartRef = useRef<ReactEChartsCore | null>(null);
 
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
   const [expandedAreaId, setExpandedAreaId] = useState<number | null>(null);
+  const detailColSpan = compareActive
+    ? (allowBreakdown ? 6 : 5)
+    : (allowBreakdown ? 5 : 4);
 
   const pieData = useMemo(
     () =>
@@ -67,7 +99,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
         borderColor: CHROME.border,
         extraCssText: 'max-width:260px; white-space:normal; word-break:break-word; box-shadow:0 4px 16px rgba(0,0,0,0.08);',
         textStyle: { fontFamily: 'Inter', color: CHROME.text, fontSize: 12 },
-        formatter: (p: any) =>
+        formatter: (p: PieTooltipParam) =>
           `<div style="max-width:240px;line-height:1.4"><strong style="font-family:Fraunces,serif;display:block;margin-bottom:4px">${p.name}</strong>${formatAmount(p.value, mode)} · ${p.percent}%</div>`,
       },
       series: [
@@ -115,16 +147,17 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
 
   const onChartEvents = useMemo(
     () => ({
-      mouseover: (e: any) => {
+      mouseover: (e: PieEventParam) => {
         if (typeof e?.dataIndex === 'number') setHoverIdx(e.dataIndex);
       },
       mouseout: () => setHoverIdx(null),
-      click: (e: any) => {
+      click: (e: PieEventParam) => {
+        if (!allowBreakdown) return;
         const id = e?.data?.areaId;
         if (id) setExpandedAreaId((prev) => (prev === id ? null : id));
       },
     }),
-    [],
+    [allowBreakdown],
   );
 
   return (
@@ -147,33 +180,60 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
       <div className="lg:col-span-3 min-w-0">
         <div className="rounded-xl bg-card ring-1 ring-border/60 max-h-[70vh] sm:max-h-[520px] lg:max-h-none lg:h-[520px] overflow-y-auto overflow-x-hidden relative">
           <table className="w-full text-sm table-fixed">
-            {!compareActive && (
-              <colgroup>
-                <col className="w-7 sm:w-10" />
-                <col />
-                <col className="w-[6.5rem] sm:w-40" />
-                <col className="w-0 sm:w-16" />
-                <col className="w-0 sm:w-8" />
-              </colgroup>
-            )}
+            <colgroup>
+              {!compareActive ? (
+                <>
+                  <col className="w-7 sm:w-10" />
+                  <col />
+                  <col className="w-[5.5rem] sm:w-40" />
+                  <col className="w-11 sm:w-20" />
+                  {allowBreakdown && <col className="w-0 sm:w-8" />}
+                </>
+              ) : (
+                <>
+                  <col style={{ width: '5%' }} />
+                  <col style={{ width: '35%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '20%' }} />
+                  <col style={{ width: '15%' }} />
+                  {allowBreakdown && <col style={{ width: '5%' }} className="hidden sm:table-column" />}
+                </>
+              )}
+            </colgroup>
             <thead className="sticky top-0 z-10 bg-muted/90 backdrop-blur">
-              <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className={cn('px-2 sm:px-3 py-2 font-medium', compareActive && 'w-[5%]')}>#</th>
-                <th className={cn('px-2 sm:px-3 py-2 font-medium', compareActive && 'w-[47%] sm:w-[34%]')}>{t('explorer.table.area')}</th>
-                <th className={cn('px-2 sm:px-3 py-2 font-medium text-right', compareActive && 'w-[30%] sm:w-[22%]')}>
-                  {compareActive ? year : t('explorer.amount')}
+              <tr className="text-left text-xs uppercase tracking-normal sm:tracking-wide text-muted-foreground">
+                <th className="px-1.5 sm:px-3 py-2 font-medium">#</th>
+                <th className="px-1.5 sm:px-3 py-2 font-medium">
+                  <span className="sm:hidden">{categoryLabel ?? t('explorer.table.areaShort')}</span>
+                  <span className="hidden sm:inline">{categoryLabel ?? t('explorer.table.area')}</span>
+                </th>
+                <th className="px-1.5 sm:px-3 py-2 font-medium text-right">
+                  {compareActive ? year : (
+                    <>
+                      <span className="sm:hidden">{t('explorer.amountShort')}</span>
+                      <span className="hidden sm:inline">{t('explorer.amount')}</span>
+                    </>
+                  )}
                 </th>
                 {compareActive && (
-                  <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell sm:w-[20%]">
+                  <th className="px-1.5 sm:px-3 py-2 font-medium text-right">
                     {compareYear}
                   </th>
                 )}
                 {compareActive ? (
-                  <th className="px-2 sm:px-3 py-2 font-medium text-right w-[18%] sm:w-[15%]">{t('explorer.change')}</th>
+                  <th className="px-1.5 sm:px-3 py-2 font-medium text-right">
+                    <span className="sm:hidden">{t('explorer.changeShort')}</span>
+                    <span className="hidden sm:inline">{t('explorer.change')}</span>
+                  </th>
                 ) : (
-                  <th className="px-2 sm:px-3 py-2 font-medium text-right hidden sm:table-cell">{t('explorer.share')}</th>
+                  <th className="px-1.5 sm:px-3 py-2 font-medium text-right">
+                    <span className="sm:hidden">{t('explorer.shareShort')}</span>
+                    <span className="hidden sm:inline">{t('explorer.share')}</span>
+                  </th>
                 )}
-                <th className={cn('px-1 sm:px-2 py-2 hidden sm:table-cell', compareActive && 'sm:w-[4%]')} aria-hidden="true" />
+                {allowBreakdown && (
+                  <th className={cn('px-1 sm:px-2 py-2 hidden sm:table-cell', compareActive && 'sm:w-[4%]')} aria-hidden="true" />
+                )}
               </tr>
             </thead>
             <tbody>
@@ -192,26 +252,29 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
                         setHoverIdx(null);
                         highlightSlice(null);
                       }}
-                      onClick={() =>
-                        setExpandedAreaId((prev) => (prev === r.area.area_id ? null : r.area.area_id))
-                      }
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                          e.preventDefault();
-                          setExpandedAreaId((prev) => (prev === r.area.area_id ? null : r.area.area_id));
-                        }
-                      }}
-                      tabIndex={0}
-                      role="button"
-                      aria-expanded={isExpanded}
+                      onClick={allowBreakdown
+                        ? () => setExpandedAreaId((prev) => (prev === r.area.area_id ? null : r.area.area_id))
+                        : undefined}
+                      onKeyDown={allowBreakdown
+                        ? (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              setExpandedAreaId((prev) => (prev === r.area.area_id ? null : r.area.area_id));
+                            }
+                          }
+                        : undefined}
+                      tabIndex={allowBreakdown ? 0 : undefined}
+                      role={allowBreakdown ? 'button' : undefined}
+                      aria-expanded={allowBreakdown ? isExpanded : undefined}
                       className={cn(
-                        'cursor-pointer border-t border-border/50 transition-colors row-press',
+                        'border-t border-border/50 transition-colors',
+                        allowBreakdown && 'cursor-pointer row-press',
                         isHover && 'bg-primary/5',
                         isExpanded && 'bg-primary/10',
                       )}
                     >
-                      <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-muted-foreground tabular-nums">{i + 1}</td>
-                      <td className="px-2 sm:px-3 py-2 sm:py-2.5">
+                      <td className="px-1.5 sm:px-3 py-2 sm:py-2.5 text-muted-foreground tabular-nums text-xs">{i + 1}</td>
+                      <td className="px-1.5 sm:px-3 py-2 sm:py-2.5">
                         <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
                           <span
                             aria-hidden="true"
@@ -221,12 +284,18 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
                           <span className="font-medium text-foreground truncate text-xs sm:text-sm" title={localizeArea(r.area.name_sv)}>{localizeArea(r.area.name_sv)}</span>
                         </div>
                       </td>
-                      <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm">
+                      <td className={cn(
+                        'px-1.5 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums text-[11px] sm:text-sm',
+                        compareActive && 'overflow-hidden text-ellipsis whitespace-nowrap',
+                      )}>
                         {compareActive ? (
-                          <span>{mkr(r.rawAmount)}</span>
+                          <>
+                            <span className="sm:hidden">{mkrShort(r.rawAmount)}</span>
+                            <span className="hidden sm:inline">{mkr(r.rawAmount)}</span>
+                          </>
                         ) : (
                           <div className="flex flex-col items-end gap-0.5 sm:flex-row sm:items-center sm:justify-end sm:gap-1.5">
-                            <span>{mkr(r.rawAmount)}</span>
+                            <span className="whitespace-nowrap">{mkr(r.rawAmount)}</span>
                             {r.changePct != null && (
                               <span className={cn(
                                 'inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium leading-none',
@@ -239,12 +308,17 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
                         )}
                       </td>
                       {compareActive && (
-                        <td className="px-2 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm text-muted-foreground hidden sm:table-cell">
-                          {r.compareRawAmount != null ? mkr(r.compareRawAmount) : '—'}
+                        <td className="px-1.5 sm:px-3 py-2 sm:py-2.5 text-right tabular-nums overflow-hidden text-ellipsis whitespace-nowrap text-[11px] sm:text-sm text-muted-foreground">
+                          {r.compareRawAmount != null ? (
+                            <>
+                              <span className="sm:hidden">{mkrShort(r.compareRawAmount)}</span>
+                              <span className="hidden sm:inline">{mkr(r.compareRawAmount)}</span>
+                            </>
+                          ) : '—'}
                         </td>
                       )}
                       {compareActive ? (
-                        <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums whitespace-nowrap text-xs sm:text-sm">
+                        <td className="px-1.5 sm:px-3 py-2.5 text-right tabular-nums text-[11px] sm:text-sm">
                           {r.changePct != null ? (
                             <span className={cn(
                               'inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] sm:text-xs font-medium leading-none',
@@ -255,34 +329,40 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
                           ) : '—'}
                         </td>
                       ) : (
-                        <td className="px-2 sm:px-3 py-2.5 text-right tabular-nums text-muted-foreground hidden sm:table-cell">
+                        <td className="px-1.5 sm:px-3 py-2.5 text-right tabular-nums text-muted-foreground text-[11px] sm:text-sm">
                           {r.pct.toFixed(1)}%
                         </td>
                       )}
-                      <td className="px-1 sm:px-2 py-2.5 text-muted-foreground hidden sm:table-cell">
-                        <ChevronDown aria-hidden="true" className={cn('h-4 w-4 transition-transform duration-200', !isExpanded && '-rotate-90')} />
-                      </td>
+                      {allowBreakdown && (
+                        <td className="px-1 sm:px-2 py-2.5 text-muted-foreground hidden sm:table-cell">
+                          <ChevronDown aria-hidden="true" className={cn('h-4 w-4 transition-transform duration-200', !isExpanded && '-rotate-90')} />
+                        </td>
+                      )}
                     </tr>
-                    <tr>
-                      <td colSpan={compareActive ? 7 : 5} className="p-0 border-0">
-                        <div
-                          className={cn(
-                            'grid transition-[grid-template-rows] duration-300 ease-in-out',
-                            isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
-                          )}
-                        >
-                          <div className="overflow-hidden">
-                            <div className="bg-muted/30 px-3 sm:px-4 py-3 sm:py-4">
-                              <AnslagBreakdown
-                                areaId={r.area.area_id}
-                                areaName={r.area.name_sv}
-                                year={year}
-                              />
+                    {allowBreakdown && (
+                      <tr>
+                        <td colSpan={detailColSpan} className="p-0 border-0">
+                          <div
+                            className={cn(
+                              'grid transition-[grid-template-rows] duration-300 ease-in-out',
+                              isExpanded ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]',
+                            )}
+                          >
+                            <div className="overflow-hidden">
+                              <div className="bg-muted/30 px-3 sm:px-4 py-3 sm:py-4">
+                                {renderDetail ? renderDetail(r) : (
+                                  <AnslagBreakdown
+                                    areaId={r.area.area_id}
+                                    areaName={r.area.name_sv}
+                                    year={year}
+                                  />
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                      </tr>
+                    )}
                   </Fragment>
                 );
               })}
@@ -296,7 +376,7 @@ const BudgetPieTable = ({ rows, mode, year, yearData: _yearData, compareActive, 
       </div>
 
       <div className="lg:col-span-5">
-        <SourceLink sources="ESV" />
+        <SourceLink sources={sourceLabel} />
       </div>
     </div>
   );
@@ -364,7 +444,7 @@ const AnslagBreakdown = ({ areaId, areaName, year }: AnslagBreakdownProps) => {
       borderColor: CHROME.border,
       extraCssText: 'max-width:260px; white-space:normal; word-break:break-word; box-shadow:0 4px 16px rgba(0,0,0,0.08);',
       textStyle: { fontFamily: 'Inter', color: CHROME.text, fontSize: 12 },
-      formatter: (p: any) =>
+      formatter: (p: { name: string; value: number }) =>
         `<div style="max-width:240px;line-height:1.4"><strong style="display:block;margin-bottom:4px">${p.name}</strong>${mkr(p.value)} · ${((p.value / areaTotal) * 100).toFixed(1)}%</div>`,
     },
     series: [

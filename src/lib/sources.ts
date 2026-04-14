@@ -55,6 +55,22 @@ export const SOURCES: DataSource[] = [
     fields: ['Nominell BNP per år'],
   },
   {
+    id: 'eurostat',
+    name: 'Eurostat — Government finance statistics',
+    shortName: 'Eurostat',
+    url: 'https://ec.europa.eu/eurostat',
+    datasetUrl:
+      'https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10a_exp',
+    description:
+      'Offentliga utgifter för Sverige enligt COFOG. Används både för den konsoliderade översiktsvyn av hela offentliga sektorn (S13) och för separata delsektorsvyer av staten, kommuner/regioner och socialförsäkringsfonder.',
+    fields: [
+      'COFOG-funktioner GF01–GF10',
+      'Konsoliderad offentlig sektor (S13)',
+      'Delsektorer S1311, S1313 och S1314',
+      '1990–2024',
+    ],
+  },
+  {
     id: 'riksdagen',
     name: 'Sveriges riksdag',
     shortName: 'Riksdagen',

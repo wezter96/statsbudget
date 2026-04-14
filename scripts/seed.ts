@@ -12,7 +12,7 @@
  *   DATABASE_URL=postgres://... bun scripts/seed.ts
  *
  * Monetary values stored as Mkr (millions SEK) in bigint columns.
- * Idempotent: wipes dim_year/dim_area/dim_anslag/fact_budget, reseeds.
+ * Idempotent: refreshes shared dimensions with upserts and reseeds budget facts.
  * dim_party comes from the migration.
  */
 
@@ -47,8 +47,11 @@ const withSsl = normalized.includes('sslmode=') ? normalized : normalized + (nor
 try {
   const u = new URL(withSsl);
   console.log(`DB: ${u.protocol}//***@${u.hostname}:${u.port}${u.pathname}${u.search}`);
-} catch {}
+} catch {
+  console.log('DB: [masked connection string unavailable]');
+}
 const sql = new SQL(withSsl);
+type SqlExecutor = Pick<SQL, 'unsafe'>;
 
 const YEAR_MIN = 1997;
 const HISTORICAL_YEARS = [1975, 1980, 1985, 1990, 1995];
@@ -289,6 +292,35 @@ type JsonStat2 = {
   value: (number | null)[];
 };
 
+type EurostatJson = {
+  id: string[];
+  size: number[];
+  dimension: {
+    cofog99: { category: { index: Record<string, number>; label: Record<string, string> } };
+    time: { category: { index: Record<string, number>; label: Record<string, string> } };
+  };
+  value: Record<string, number>;
+};
+
+const PUBLIC_BUDGET_FUNCTIONS = [
+  { public_function_id: 1, code: 'GF01', name_sv: 'Allmän offentlig förvaltning', name_en: 'General public services' },
+  { public_function_id: 2, code: 'GF02', name_sv: 'Försvar', name_en: 'Defence' },
+  { public_function_id: 3, code: 'GF03', name_sv: 'Allmän ordning och säkerhet', name_en: 'Public order and safety' },
+  { public_function_id: 4, code: 'GF04', name_sv: 'Näringslivsfrågor', name_en: 'Economic affairs' },
+  { public_function_id: 5, code: 'GF05', name_sv: 'Miljöskydd', name_en: 'Environmental protection' },
+  { public_function_id: 6, code: 'GF06', name_sv: 'Bostäder och samhällsutveckling', name_en: 'Housing and community amenities' },
+  { public_function_id: 7, code: 'GF07', name_sv: 'Hälso- och sjukvård', name_en: 'Health' },
+  { public_function_id: 8, code: 'GF08', name_sv: 'Fritid, kultur och religion', name_en: 'Recreation, culture and religion' },
+  { public_function_id: 9, code: 'GF09', name_sv: 'Utbildning', name_en: 'Education' },
+  { public_function_id: 10, code: 'GF10', name_sv: 'Socialt skydd', name_en: 'Social protection' },
+] as const;
+
+const PUBLIC_BUDGET_SUBSECTORS = [
+  { public_subsector_id: 1, code: 'S1311', name_sv: 'Staten', name_en: 'Central government' },
+  { public_subsector_id: 2, code: 'S1313', name_sv: 'Kommuner och regioner', name_en: 'Local government' },
+  { public_subsector_id: 3, code: 'S1314', name_sv: 'Socialförsäkringar', name_en: 'Social security funds' },
+] as const;
+
 async function scb(tableId: string, valueCodes: Record<string, string[]> = {}): Promise<JsonStat2> {
   const base = `https://api.scb.se/OV0104/v2beta/api/v2/tables/${tableId}/data`;
   const p = new URLSearchParams({ lang: 'sv', outputFormat: 'json-stat2' });
@@ -335,21 +367,105 @@ async function fetchBnp(): Promise<Map<number, number>> {
   return out;
 }
 
+async function fetchEurostatPublicBudgetBySector(sectorCode: string) {
+  const url = new URL('https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data/gov_10a_exp');
+  url.searchParams.set('format', 'JSON');
+  url.searchParams.set('lang', 'EN'); // Eurostat data API only accepts EN, FR, or DE — not SV
+  url.searchParams.set('geo', 'SE');
+  url.searchParams.set('sector', sectorCode);
+  url.searchParams.set('na_item', 'TE');
+  url.searchParams.set('unit', 'MIO_NAC');
+  for (const fn of PUBLIC_BUDGET_FUNCTIONS) {
+    url.searchParams.append('cofog99', fn.code);
+  }
+
+  console.log(`→ Eurostat gov_10a_exp ${sectorCode}`);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Eurostat gov_10a_exp ${sectorCode} failed: ${res.status}`);
+  const json = await res.json() as EurostatJson;
+
+  const cofogIndex = json.dimension.cofog99?.category.index;
+  const timeIndex = json.dimension.time?.category.index;
+  if (!cofogIndex || !timeIndex) {
+    throw new Error('Eurostat gov_10a_exp response missing cofog99/time dimensions');
+  }
+
+  const years = Object.keys(timeIndex)
+    .map((year) => parseInt(year, 10))
+    .filter((year) => Number.isFinite(year))
+    .sort((a, b) => a - b);
+  const yearCount = years.length;
+  const facts: [number, number, number][] = [];
+
+  for (const fn of PUBLIC_BUDGET_FUNCTIONS) {
+    const cofogPos = cofogIndex[fn.code];
+    if (!Number.isFinite(cofogPos)) {
+      throw new Error(`Eurostat gov_10a_exp missing COFOG code ${fn.code}`);
+    }
+    for (const [yearCode, yearPos] of Object.entries(timeIndex)) {
+      const year = parseInt(yearCode, 10);
+      if (!Number.isFinite(year)) continue;
+      const raw = json.value[String(cofogPos * yearCount + yearPos)];
+      if (typeof raw !== 'number') continue;
+      facts.push([year, fn.public_function_id, Math.round(raw)]);
+    }
+  }
+
+  return { years, facts };
+}
+
+async function fetchEurostatPublicBudget() {
+  const result = await fetchEurostatPublicBudgetBySector('S13');
+  console.log(`  Eurostat years: ${result.years.length}`);
+  return { years: result.years, functions: PUBLIC_BUDGET_FUNCTIONS, facts: result.facts };
+}
+
+async function fetchEurostatPublicSubsectorBudget() {
+  const sectorResults = await Promise.all(
+    PUBLIC_BUDGET_SUBSECTORS.map(async (subsector) => ({
+      subsector,
+      data: await fetchEurostatPublicBudgetBySector(subsector.code),
+    })),
+  );
+
+  const yearSet = new Set<number>();
+  const facts: [number, number, number, number][] = [];
+
+  for (const { subsector, data } of sectorResults) {
+    for (const year of data.years) yearSet.add(year);
+    for (const [year, publicFunctionId, amount] of data.facts) {
+      facts.push([year, subsector.public_subsector_id, publicFunctionId, amount]);
+    }
+  }
+
+  const years = [...yearSet].sort((a, b) => a - b);
+  console.log(`  Eurostat subsector years: ${years.length}`);
+  return { years, subsectors: PUBLIC_BUDGET_SUBSECTORS, facts };
+}
+
 // ---------- Load ----------
 
 async function main() {
   console.log('== Statsbudget seed ==');
 
   for (const migrationPath of [
-    '../supabase/migrations/20260411120000_star_schema.sql',
-    '../supabase/migrations/20260411213000_riksdagen_metadata.sql',
-  ]) {
+     '../supabase/migrations/20260411120000_star_schema.sql',
+     '../supabase/migrations/20260411213000_riksdagen_metadata.sql',
+     '../supabase/migrations/20260413120000_public_budget.sql',
+     '../supabase/migrations/20260414104000_public_subsectors.sql',
+    ]) {
     const migrationSql = await Bun.file(new URL(migrationPath, import.meta.url)).text();
     console.log(`→ applying migration ${migrationPath.split('/').pop()}`);
     await sql.unsafe(migrationSql);
   }
 
-  const [esvRows, cpi, bnp] = await Promise.all([fetchEsv(), fetchCpi(), fetchBnp()]);
+  const [esvRows, publicBudget, publicSubsectorBudget, cpi, bnp] = await Promise.all([
+    fetchEsv(),
+    fetchEurostatPublicBudget(),
+    fetchEurostatPublicSubsectorBudget(),
+    fetchCpi(),
+    fetchBnp(),
+  ]);
   const budgetYears = [...new Set(esvRows.map((r) => r.year))].sort((a, b) => a - b);
   const riksdagenBudgetMeta = await fetchRiksdagenBudgetMetadataMap(budgetYears);
 
@@ -359,6 +475,8 @@ async function main() {
 
   const yearSet = new Set<number>();
   for (const r of esvRows) yearSet.add(r.year);
+  for (const y of publicBudget.years) yearSet.add(y);
+  for (const y of publicSubsectorBudget.years) yearSet.add(y);
   for (const y of cpi.keys()) yearSet.add(y);
   for (const y of bnp.keys()) yearSet.add(y);
   for (const y of HISTORICAL_YEARS) yearSet.add(y);
@@ -379,20 +497,32 @@ async function main() {
   }
 
   console.log(`  dim_area: ${areas.length}`);
+  console.log(`  dim_public_function: ${publicBudget.functions.length}`);
+  console.log(`  dim_public_subsector: ${publicSubsectorBudget.subsectors.length}`);
   console.log(`  dim_year: ${years.length} (${years[0]}-${years[years.length - 1]})`);
   console.log(`  dim_anslag: ${anslagMap.size}`);
   console.log(`  fact rows: ${areaTotals.size} area + ${esvRows.filter((r) => r.anslagIdNum != null).length} anslag`);
+  console.log(`  fact_public_budget: ${publicBudget.facts.length}`);
+  console.log(`  fact_public_subsector_budget: ${publicSubsectorBudget.facts.length}`);
 
-  await sql.begin(async (tx: any) => {
+  await sql.begin(async (tx: SqlExecutor) => {
+    await tx.unsafe('truncate public.fact_public_subsector_budget restart identity cascade');
+    await tx.unsafe('truncate public.fact_public_budget restart identity cascade');
     await tx.unsafe('truncate public.fact_budget restart identity cascade');
+    await tx.unsafe('delete from public.dim_public_subsector');
+    await tx.unsafe('delete from public.dim_public_function');
     await tx.unsafe('delete from public.dim_anslag');
-    await tx.unsafe('delete from public.dim_year');
-    await tx.unsafe('delete from public.dim_area');
 
     for (const [uo, name] of areas) {
       const code = `UO${uo.toString().padStart(2, '0')}`;
       await tx.unsafe(
-        'insert into public.dim_area(area_id, code, name_sv, name_en, sort_order) values ($1,$2,$3,null,$4)',
+        `insert into public.dim_area(area_id, code, name_sv, name_en, sort_order)
+         values ($1,$2,$3,null,$4)
+         on conflict (area_id) do update set
+           code = excluded.code,
+           name_sv = excluded.name_sv,
+           name_en = excluded.name_en,
+           sort_order = excluded.sort_order`,
         [uo, code, name, uo],
       );
     }
@@ -413,7 +543,15 @@ async function main() {
            riksdagen_proposition_title,
            riksdagen_decision_url,
            riksdagen_decision_title
-         ) values ($1,$2,$3,$4,$5,$6,$7,$8)`,
+         ) values ($1,$2,$3,$4,$5,$6,$7,$8)
+         on conflict (year_id) do update set
+           cpi_index = excluded.cpi_index,
+           gdp_nominal_sek = excluded.gdp_nominal_sek,
+           is_historical = excluded.is_historical,
+           riksdagen_proposition_url = excluded.riksdagen_proposition_url,
+           riksdagen_proposition_title = excluded.riksdagen_proposition_title,
+           riksdagen_decision_url = excluded.riksdagen_decision_url,
+           riksdagen_decision_title = excluded.riksdagen_decision_title`,
         [
           y,
           cpiVal,
@@ -423,6 +561,26 @@ async function main() {
           budgetMeta?.propositionTitle ?? null,
           budgetMeta?.decisionUrl ?? null,
           budgetMeta?.decisionTitle ?? null,
+        ],
+      );
+    }
+
+    for (const fn of publicBudget.functions) {
+      await tx.unsafe(
+        'insert into public.dim_public_function(public_function_id, code, name_sv, name_en, sort_order) values ($1,$2,$3,$4,$5)',
+        [fn.public_function_id, fn.code, fn.name_sv, fn.name_en, fn.public_function_id],
+      );
+    }
+
+    for (const subsector of publicSubsectorBudget.subsectors) {
+      await tx.unsafe(
+        'insert into public.dim_public_subsector(public_subsector_id, code, name_sv, name_en, sort_order) values ($1,$2,$3,$4,$5)',
+        [
+          subsector.public_subsector_id,
+          subsector.code,
+          subsector.name_sv,
+          subsector.name_en,
+          subsector.public_subsector_id,
         ],
       );
     }
@@ -445,17 +603,20 @@ async function main() {
       .filter((r) => r.anslagIdNum != null)
       .map((r) => [r.year, r.uo, r.anslagIdNum!, Math.round(r.utfall)] as [number, number, number, number]);
     await bulkInsertAnslagFacts(tx, anslagFacts);
+
+    await bulkInsertPublicBudgetFacts(tx, publicBudget.facts);
+    await bulkInsertPublicSubsectorBudgetFacts(tx, publicSubsectorBudget.facts);
   });
 
   await sql.end();
   console.log('== Done ==');
 }
 
-async function bulkInsertAreaFacts(tx: any, rows: [number, number, number][]) {
+async function bulkInsertAreaFacts(tx: SqlExecutor, rows: [number, number, number][]) {
   const chunk = 500;
   for (let i = 0; i < rows.length; i += chunk) {
     const slice = rows.slice(i, i + chunk);
-    const params: any[] = [];
+    const params: number[] = [];
     const valuesSql = slice.map((r, j) => {
       const off = j * 3;
       params.push(r[0], r[1], r[2]);
@@ -468,11 +629,11 @@ async function bulkInsertAreaFacts(tx: any, rows: [number, number, number][]) {
   }
 }
 
-async function bulkInsertAnslagFacts(tx: any, rows: [number, number, number, number][]) {
+async function bulkInsertAnslagFacts(tx: SqlExecutor, rows: [number, number, number, number][]) {
   const chunk = 500;
   for (let i = 0; i < rows.length; i += chunk) {
     const slice = rows.slice(i, i + chunk);
-    const params: any[] = [];
+    const params: number[] = [];
     const valuesSql = slice.map((r, j) => {
       const off = j * 4;
       params.push(r[0], r[1], r[2], r[3]);
@@ -480,6 +641,40 @@ async function bulkInsertAnslagFacts(tx: any, rows: [number, number, number, num
     }).join(',');
     await tx.unsafe(
       `insert into public.fact_budget(year_id,area_id,anslag_id,party_id,budget_type,amount_nominal_sek,is_revenue) values ${valuesSql}`,
+      params,
+    );
+  }
+}
+
+async function bulkInsertPublicBudgetFacts(tx: SqlExecutor, rows: [number, number, number][]) {
+  const chunk = 500;
+  for (let i = 0; i < rows.length; i += chunk) {
+    const slice = rows.slice(i, i + chunk);
+    const params: number[] = [];
+    const valuesSql = slice.map((r, j) => {
+      const off = j * 3;
+      params.push(r[0], r[1], r[2]);
+      return `($${off + 1},$${off + 2},$${off + 3})`;
+    }).join(',');
+    await tx.unsafe(
+      `insert into public.fact_public_budget(year_id, public_function_id, amount_mkr) values ${valuesSql}`,
+      params,
+    );
+  }
+}
+
+async function bulkInsertPublicSubsectorBudgetFacts(tx: SqlExecutor, rows: [number, number, number, number][]) {
+  const chunk = 500;
+  for (let i = 0; i < rows.length; i += chunk) {
+    const slice = rows.slice(i, i + chunk);
+    const params: number[] = [];
+    const valuesSql = slice.map((r, j) => {
+      const off = j * 4;
+      params.push(r[0], r[1], r[2], r[3]);
+      return `($${off + 1},$${off + 2},$${off + 3},$${off + 4})`;
+    }).join(',');
+    await tx.unsafe(
+      `insert into public.fact_public_subsector_budget(year_id, public_subsector_id, public_function_id, amount_mkr) values ${valuesSql}`,
       params,
     );
   }

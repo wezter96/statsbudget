@@ -1,6 +1,6 @@
 # Statsbudget
 
-Civic-data explorer for the Swedish state budget. Follow expenditure from 2000 to today, drill into anslag, compare across decades with curated 1975/1980/1985 snapshots.
+Civic-data explorer for Sweden's public finances and state budget. The main overview can show the full public sector, while the statsbudget view keeps the detailed utgiftsomrade/anslag breakdown.
 
 Live site: [statsbudget.se](https://statsbudget.se)
 
@@ -22,6 +22,7 @@ Live site: [statsbudget.se](https://statsbudget.se)
 |---|---|---|
 | ESV / Statskontoret | Årsutfall statsbudget per utgiftsområde + anslag (CSV, CC0) | 1997–2025 |
 | ESV / Statskontoret | Månadsutfall inkomster (CSV/ZIP) | 2006–pågående |
+| Eurostat | Konsoliderade offentliga utgifter enligt COFOG (gov_10a_exp) | 1990–2024 |
 | SCB PxWebApi 2 | KPI fastställda årsmedel (TAB4352) | 1980–2025 |
 | SCB PxWebApi 2 | BNP till marknadspris, löpande priser (TAB4553) | 1981–2025 |
 | Riksdagen | Finansutskottets betänkanden 1975:FiU48, 1979/80:FiU50, 1984/85:FiU37 | 1975/76, 1980/81, 1985/86 |

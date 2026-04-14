@@ -93,7 +93,7 @@ export const TAX_GAP_ITEMS: TaxGapItem[] = [
     notes_sv: 'Skillnad mot normalmoms 25 %.',
   },
 
-  // --- Largest: NOT yet in our dataset ---
+  // --- Large reviewed items with mixed coverage status ---
   {
     id: 'FASTIGHETSSKATT_AVSKAFFAD',
     name_sv: 'Avskaffad fastighetsskatt (−2008)',
@@ -110,14 +110,14 @@ export const TAX_GAP_ITEMS: TaxGapItem[] = [
   {
     id: 'AVKASTNING_EGET_HEM',
     name_sv: 'Avkastning eget hem (imputerad hyra obeskattad)',
-    size_mdr: 27,
+    size_mdr: 28.7,
     year_of_estimate: 2024,
-    category: 'esv_uncovered',
+    category: 'esv_covered',
     source: 'ESV skr. 2024/25:98 skatteutgift C1',
     confidence: 'high',
-    in_dataset: false,
+    in_dataset: true,
     notes_sv:
-      'Finns i bilagan men vi har inte ingesterat. Den direkta avkastningen av att bo i egen bostad beskattas inte som kapitalinkomst trots att det borde enligt normen.',
+      'Finns i bilagan och är nu ingesterad i datasetet som skatteutgift C1. Den direkta avkastningen av att bo i egen bostad beskattas inte som kapitalinkomst trots att det borde enligt normen.',
   },
   {
     id: 'ENERGI_IND',
@@ -133,14 +133,14 @@ export const TAX_GAP_ITEMS: TaxGapItem[] = [
   {
     id: 'REGEL_3_12',
     name_sv: '3:12-reglerna (fåmansbolag)',
-    size_mdr: 13,
-    year_of_estimate: 2023,
-    category: 'corporate_mechanism',
-    source: 'Finanspolitiska rådet 2022 + SNS-rapporter',
-    confidence: 'medium',
-    in_dataset: false,
+    size_mdr: 12.9,
+    year_of_estimate: 2024,
+    category: 'esv_covered',
+    source: 'ESV skr. 2024/25:98 skatteutgift C4; RiR 2021:17',
+    confidence: 'high',
+    in_dataset: true,
     notes_sv:
-      'Ägare av fåmansbolag kan ta ut utdelning till 20 % skatt upp till gränsbelopp. Skattegapet mot tjänsteinkomstskatt är ~10-15 mdr/år. Politiskt hett.',
+      'Det finns en officiell skatteutgift i bilagan för kapitalvinstbeskattning på kvalificerade andelar (C4), som i praktiken hänger ihop med 3:12-reglerna. Den har nu ingesterats och visas på sajten som 3:12-relaterad post.',
   },
   {
     id: 'ROT',
@@ -156,14 +156,14 @@ export const TAX_GAP_ITEMS: TaxGapItem[] = [
   {
     id: 'KAPITALVINST_BOSTAD',
     name_sv: 'Nedsatt kapitalvinstskatt bostadsförsäljning + uppskov',
-    size_mdr: 10,
-    year_of_estimate: 2023,
-    category: 'esv_uncovered',
-    source: 'ESV skr. 2024/25:98 skatteutgift C8',
+    size_mdr: 9.8,
+    year_of_estimate: 2024,
+    category: 'esv_covered',
+    source: 'ESV skr. 2024/25:98 skatteutgifter C6 + C7',
     confidence: 'high',
-    in_dataset: false,
+    in_dataset: true,
     notes_sv:
-      'Kapitalvinst vid bostadsförsäljning beskattas 22 % istället för 30 %, plus möjlighet att skjuta upp skatten. Finns i bilagan, ej ingest.',
+      'Kapitalvinst vid bostadsförsäljning beskattas 22 % i stället för 30 %, plus möjlighet att skjuta upp skatten. I datasetet finns detta nu som två separata poster: C7 och C6.',
   },
   {
     id: 'RUT',

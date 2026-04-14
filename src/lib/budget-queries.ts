@@ -2,11 +2,14 @@ import { supabase } from '@/integrations/supabase/client';
 import type {
   DimYear, DimArea, DimAnslag, DimParty, FactBudget, FactHistorical, DisplayMode,
   DimSkatteutgift, FactSkatteutgift,
-  DimIncomeTitle, DimIncomeOutcomeTitle, FactIncome, FactIncomeOutcomeMonth, FactIncomeOutcomeQuarterly,
+  DimIncomeTitle, DimIncomeOutcomeTitle, DimPublicFunction, DimPublicSubsector,
+  FactIncome, FactIncomeOutcomeMonth, FactIncomeOutcomeQuarterly, FactPublicBudget,
+  FactPublicSubsectorBudget,
 } from './supabase-types';
 
 // The tables exist in the DB but aren't in the auto-generated types yet.
 // We cast to any for .from() calls and type the results manually.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Generated Supabase types lag behind the schema we seed locally.
 const db = supabase as any;
 
 export async function getYears(): Promise<DimYear[]> {
@@ -28,10 +31,37 @@ export async function getBudgetYears(): Promise<number[]> {
   return [...set].sort((a, b) => a - b);
 }
 
+export async function getPublicBudgetYears(): Promise<number[]> {
+  const { data, error } = await db
+    .from('fact_public_budget')
+    .select('year_id');
+  if (error) throw error;
+  const set = new Set<number>((data as { year_id: number }[]).map((r) => r.year_id));
+  return [...set].sort((a, b) => a - b);
+}
+
 export async function getAreas(): Promise<DimArea[]> {
   const { data, error } = await db.from('dim_area').select('*').order('sort_order', { ascending: true });
   if (error) throw error;
   return data as DimArea[];
+}
+
+export async function getPublicFunctions(): Promise<DimPublicFunction[]> {
+  const { data, error } = await db
+    .from('dim_public_function')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data as DimPublicFunction[];
+}
+
+export async function getPublicSubsectors(): Promise<DimPublicSubsector[]> {
+  const { data, error } = await db
+    .from('dim_public_subsector')
+    .select('*')
+    .order('sort_order', { ascending: true });
+  if (error) throw error;
+  return data as DimPublicSubsector[];
 }
 
 export async function getParties(): Promise<DimParty[]> {
@@ -62,6 +92,24 @@ export async function getBudgetByYear(
   return data as FactBudget[];
 }
 
+export async function getPublicBudgetByYear(year: number): Promise<FactPublicBudget[]> {
+  const { data, error } = await db
+    .from('fact_public_budget')
+    .select('*')
+    .eq('year_id', year);
+  if (error) throw error;
+  return data as FactPublicBudget[];
+}
+
+export async function getPublicSubsectorBudgetByYear(year: number): Promise<FactPublicSubsectorBudget[]> {
+  const { data, error } = await db
+    .from('fact_public_subsector_budget')
+    .select('*')
+    .eq('year_id', year);
+  if (error) throw error;
+  return data as FactPublicSubsectorBudget[];
+}
+
 export async function getAreaTimeSeries(areaId: number, yearFrom: number, yearTo: number): Promise<FactBudget[]> {
   const { data, error } = await db.from('fact_budget').select('*')
     .eq('area_id', areaId).is('anslag_id', null).eq('is_revenue', false)
@@ -76,6 +124,17 @@ export async function getAllTimeSeries(yearFrom: number, yearTo: number): Promis
     .gte('year_id', yearFrom).lte('year_id', yearTo).order('year_id', { ascending: true });
   if (error) throw error;
   return data as FactBudget[];
+}
+
+export async function getPublicBudgetTimeSeries(yearFrom: number, yearTo: number): Promise<FactPublicBudget[]> {
+  const { data, error } = await db
+    .from('fact_public_budget')
+    .select('*')
+    .gte('year_id', yearFrom)
+    .lte('year_id', yearTo)
+    .order('year_id', { ascending: true });
+  if (error) throw error;
+  return data as FactPublicBudget[];
 }
 
 export async function getPartyComparison(year: number, partyIds: number[]): Promise<FactBudget[]> {
@@ -223,9 +282,8 @@ export function formatAmount(value: number, mode: DisplayMode): string {
   switch (mode) {
     case 'nominal':
     case 'real':
-      if (Math.abs(value) >= 1e9) return `${(value / 1e9).toFixed(1)} mdr kr`;
-      if (Math.abs(value) >= 1e6) return `${(value / 1e6).toFixed(0)} mkr`;
-      return `${value.toLocaleString('sv-SE')} kr`;
+      if (Math.abs(value) >= 1000) return `${(value / 1000).toFixed(1)} mdr kr`;
+      return `${Math.round(value).toLocaleString('sv-SE')} mkr`;
     case 'gdp_pct':
     case 'total_pct':
       return `${value.toFixed(1)}%`;

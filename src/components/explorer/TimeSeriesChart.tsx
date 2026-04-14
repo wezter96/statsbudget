@@ -13,6 +13,13 @@ import type { DisplayMode } from '@/lib/supabase-types';
 
 echarts.use([LineChart, TooltipComponent, GridComponent, CanvasRenderer]);
 
+type AxisTooltipParam = {
+  axisValue?: string;
+  color: string;
+  seriesName: string;
+  value: number;
+};
+
 interface SeriesData {
   name: string;
   /** Stable language-independent key for color lookup. Falls back to `name`. */
@@ -27,9 +34,10 @@ interface TimeSeriesChartProps {
   mode: DisplayMode;
   yearFrom: number;
   yearTo: number;
+  sourceLabel?: string;
 }
 
-const TimeSeriesChart = ({ series, mode, yearFrom, yearTo }: TimeSeriesChartProps) => {
+const TimeSeriesChart = ({ series, mode, yearFrom, yearTo, sourceLabel = 'ESV' }: TimeSeriesChartProps) => {
   const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const legendItems = useMemo(() => buildTimeSeriesLegendItems(series, yearTo), [series, yearTo]);
 
@@ -82,22 +90,22 @@ const TimeSeriesChart = ({ series, mode, yearFrom, yearTo }: TimeSeriesChartProp
       borderColor: CHROME.border,
       extraCssText: 'max-width:340px; white-space:normal; word-break:break-word; box-shadow:0 4px 16px rgba(0,0,0,0.08);',
       textStyle: { fontFamily: 'Inter', color: CHROME.text, fontSize: 12 },
-      formatter: (params: any) => {
+      formatter: (params: AxisTooltipParam[]) => {
         if (!Array.isArray(params) || params.length === 0) return '';
-        const total = params.reduce((s: number, p: any) => s + (Number(p.value) || 0), 0);
+        const total = params.reduce((sum, param) => sum + (Number(param.value) || 0), 0);
         const sorted = [...params]
-          .filter((p: any) => Number(p.value) > 0)
-          .sort((a: any, b: any) => Number(b.value) - Number(a.value));
+          .filter((param) => Number(param.value) > 0)
+          .sort((a, b) => Number(b.value) - Number(a.value));
         const TOP = 8;
         const top = sorted.slice(0, TOP);
         const restCount = sorted.length - top.length;
-        const restSum = sorted.slice(TOP).reduce((s: number, p: any) => s + Number(p.value), 0);
+        const restSum = sorted.slice(TOP).reduce((sum, param) => sum + Number(param.value), 0);
 
         const header = `<div style="margin-bottom:6px"><strong style="font-family:Fraunces,serif">${params[0]?.axisValue}</strong>${series.length > 1 ? ` · Totalt ${formatAmount(total, mode)}` : ''}</div>`;
         const rowHtml = top
-          .map((p: any) => {
-            const name = p.seriesName && p.seriesName.length > 32 ? p.seriesName.slice(0, 31) + '…' : p.seriesName;
-            return `<div style="display:flex;justify-content:space-between;gap:10px;line-height:1.5"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="color:${p.color}">●</span> ${name}</span><span style="white-space:nowrap;font-variant-numeric:tabular-nums;color:${CHROME.textMuted}">${formatAmount(p.value, mode)}</span></div>`;
+          .map((param) => {
+            const name = param.seriesName && param.seriesName.length > 32 ? param.seriesName.slice(0, 31) + '…' : param.seriesName;
+            return `<div style="display:flex;justify-content:space-between;gap:10px;line-height:1.5"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><span style="color:${param.color}">●</span> ${name}</span><span style="white-space:nowrap;font-variant-numeric:tabular-nums;color:${CHROME.textMuted}">${formatAmount(param.value, mode)}</span></div>`;
           })
           .join('');
         const rest = restCount > 0
@@ -166,7 +174,7 @@ const TimeSeriesChart = ({ series, mode, yearFrom, yearTo }: TimeSeriesChartProp
           </li>
         ))}
       </ul>
-      <div className="mt-2"><SourceLink sources="ESV" /></div>
+      <div className="mt-2"><SourceLink sources={sourceLabel} /></div>
     </div>
   );
 };

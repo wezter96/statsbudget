@@ -2,13 +2,13 @@
   "site": {
     "title": "Statsbudget",
     "tagline": "Where your tax money goes",
-    "description": "An independent visualization of the Swedish state budget. Based on official data from ESV, SCB and the Riksdag."
+    "description": "An independent visualization of Sweden's public spending and state budget. Based on official data from Eurostat, ESV, SCB and the Riksdag."
   },
   "hero": {
     "heading": "Where your tax money goes",
-    "subheading": "Follow the Swedish state budget from 1975 to today. Understand where the money goes.",
+    "subheading": "See the full public sector at a glance and drill into the Swedish state budget from 1975 to today.",
     "lastUpdated": "Last updated: {{date}}",
-    "sources": "Sources: ESV · SCB · the Riksdag"
+    "sources": "Sources: Eurostat · ESV · SCB · the Riksdag"
   },
   "explorer": {
     "year": "Year",
@@ -28,8 +28,15 @@
     "share": "Share",
     "change": "Change",
     "totalBudget": "Total budget",
+    "totalPublicBudget": "Total public spending",
+    "totalStateBudget": "Total state budget",
     "distribution": "Distribution",
     "overTime": "Over time",
+    "scope": "Scope",
+    "scopePublic": "Full public sector",
+    "scopeState": "State budget",
+    "scopeNotePublic": "Consolidated overview of Sweden's public spending using COFOG. This is the spending side, not only tax revenues. Click a function in the chart to see how it is distributed across central government, local government, and social security.",
+    "scopeNoteState": "Detailed ESV view of the state budget. Click an expenditure area to see appropriations. Switch to Full public sector for the consolidated country-wide total.",
     "politicsHeading": "Politics and the economy",
     "budgetBalance": "Budget balance by government",
     "budgetBalanceSource": "Source: Ekonomifakta / ESV — state budget balance, billion SEK.",
@@ -42,11 +49,22 @@
     "budgetProposition": "Budget bill",
     "financeCommittee": "Finance Committee",
     "table": {
-      "area": "Expenditure area"
+      "area": "Expenditure area",
+      "areaShort": "Area",
+      "function": "Function"
     },
+    "amountShort": "Amount",
+    "shareShort": "Share",
+    "changeShort": "Chg.",
     "compare": "Compare",
     "compareWith": "Compare with",
     "compareYear": "Comparison year",
+    "publicBreakdown": {
+      "heading": "Subsectors within {{area}}",
+      "loading": "Loading subsectors…",
+      "empty": "No subsector data to show.",
+      "note": "The amounts show gross spending according to Eurostat and are therefore not directly comparable to the detailed state-budget data."
+    },
     "anslag": {
       "heading": "Appropriations within {{area}}",
       "loading": "Loading appropriations…",
@@ -65,7 +83,7 @@
     "heading": "About Statsbudget",
     "project": {
       "title": "About the project",
-      "text": "Statsbudget is a civic tool that makes the Swedish state budget accessible and understandable to everyone. The project is run non-commercially with the goal of strengthening democratic transparency."
+      "text": "Statsbudget is a civic tool that makes both the Swedish state budget and the broader public sector more accessible and understandable. The project is run non-commercially with the goal of strengthening democratic transparency."
     },
     "sources": {
       "title": "Data sources",
@@ -125,7 +143,7 @@
     "comparison": {
       "heading": "Who benefits? A comparison",
       "intro": "Many tax expenditures are available to everyone, but they disproportionately benefit those with high incomes or who own property and capital — the higher the income and more expensive the home, the larger the tax break in absolute terms. Here we compare these with means-tested benefits that disproportionately support low earners and the poor, as well as migration costs. Click a row to read more.",
-      "ratio": "For every krona in means-tested benefits that disproportionately support low earners and the poor, roughly <strong>3 kronor</strong> go to tax subsidies that disproportionately benefit high earners and the wealthy.",
+      "ratio": "For every krona in means-tested benefits that disproportionately support low earners and the poor, roughly <strong>3.5 kronor</strong> go to tax subsidies that disproportionately benefit high earners and the wealthy.",
       "source": "Source",
       "post": "Item",
       "noteTitle": "Note:",
@@ -154,6 +172,10 @@
           "name": "Imputed return on owner-occupied homes",
           "detail": "Living in your own home provides a tax-free \"return\" (you avoid paying rent to yourself). This benefit has been entirely untaxed since 2007, despite being counted as income in national accounts. More expensive home = larger invisible subsidy."
         },
+        "fastighetsskatt": {
+          "name": "Abolished property tax",
+          "detail": "The state property tax was replaced by a low capped municipal fee. The more expensive the home and the higher the assessed value, the larger the implicit tax discount compared with the old system."
+        },
         "tolvregler": {
           "name": "Capital gains on qualified shares (3:12 rules)",
           "detail": "Owners of closely held companies can extract profits taxed at 20% capital gains instead of as salary with marginal tax up to ~55%. The National Audit Office has found these rules generous and primarily benefiting high earners."
@@ -170,6 +192,10 @@
           "name": "Capital gains on home sales",
           "detail": "Profit from selling a private home is taxed at 22% (via quota to 22/30) instead of the standard 30% capital rate. Larger home gains = more tax subsidy in absolute terms."
         },
+        "formogenhetsskatt": {
+          "name": "Abolished wealth tax",
+          "detail": "The wealth tax was abolished in 2007. The gain accrues almost entirely to households with large financial assets and high net wealth."
+        },
         "avkastningBrf": {
           "name": "Imputed return on co-op apartments",
           "detail": "Same principle as owner-occupied homes — co-op owners are not taxed on the implicit return of their housing. More expensive co-op = larger tax-free benefit."
@@ -178,6 +204,10 @@
           "name": "Reduced benefit value for eco-friendly cars",
           "detail": "Company cars are taxed at a reduced benefit value if classified as eco-friendly. Company cars are most common among white-collar workers with high salaries, and the most expensive EVs (Tesla Model S/X, BMW iX) receive the largest reduction."
         },
+        "arvsskatt": {
+          "name": "Abolished inheritance tax",
+          "detail": "The inheritance tax was abolished in 2004. The benefit mainly arises for larger inheritances and capital transfers within already wealthy households."
+        },
         "uppskov": {
           "name": "Deferred capital gains tax on homes",
           "detail": "When switching homes, you can defer the tax on the gain. Effectively an interest-free loan from the state — most valuable for large gains (millions) in metropolitan areas."
@@ -185,6 +215,10 @@
         "onoterade": {
           "name": "Capital gains on unlisted shares",
           "detail": "Capital gains on non-qualified shares in unlisted companies are taxed at 25% instead of 30%. Only relevant for those with capital to invest in unlisted companies."
+        },
+        "expertskatt": {
+          "name": "Expert tax relief",
+          "detail": "Foreign experts, researchers and key employees can receive 25% of their income tax-free for up to seven years. It applies to high incomes and highly qualified roles."
         },
         "ekonomisktBistand": {
           "name": "Social assistance (welfare)",
@@ -201,6 +235,10 @@
         "bostadsbidrag": {
           "name": "Housing allowance",
           "detail": "Income-tested benefit for low-income families with children and young people (18–28) without children. Calculated based on income, housing cost and number of children. Phases out entirely at median income."
+        },
+        "sjukAktivitet": {
+          "name": "Tax reduction for sickness and activity compensation",
+          "detail": "This tax reduction lowers the tax burden for people receiving sickness or activity compensation. It is clearly targeted at households with low or limited labour income and reduced work capacity."
         },
         "etablering": {
           "name": "Settlement benefit (new arrivals)",
@@ -254,7 +292,7 @@
     "caveat": "Amounts refer to the state budget's revenue side. Municipal taxes are partly reported separately. Some years are forecasts, not actuals."
   },
   "footer": {
-    "tagline": "An independent visualization of the Swedish state budget. Based on official data from ESV, SCB and the Riksdag.",
+    "tagline": "An independent visualization of Sweden's public spending and state budget. Based on official data from Eurostat, ESV, SCB and the Riksdag.",
     "copyright": "© {{year}} statsbudget.se — Data from ESV, SCB and the Riksdag",
     "disclaimer": "The website is provided as-is. No responsibility is taken for the accuracy, completeness, or timeliness of the information. Official records at ESV, SCB and the Riksdag prevail.",
     "about": "About the project",

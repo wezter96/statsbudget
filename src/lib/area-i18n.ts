@@ -45,6 +45,18 @@ export const AREA_NAMES_EN: Record<string, string> = {
   'Avgiften till Europeiska unionen': 'Contribution to the European Union',
   'Riksrevisionen': 'The Swedish National Audit Office',
 
+  // Public-sector COFOG functions
+  'Allmän offentlig förvaltning': 'General public services',
+  'Försvar': 'Defence',
+  'Allmän ordning och säkerhet': 'Public order and safety',
+  'Näringslivsfrågor': 'Economic affairs',
+  'Miljöskydd': 'Environmental protection',
+  'Bostäder och samhällsutveckling': 'Housing and community amenities',
+  'Hälso- och sjukvård': 'Health',
+  'Fritid, kultur och religion': 'Recreation, culture and religion',
+  'Utbildning': 'Education',
+  'Socialt skydd': 'Social protection',
+
   // Legacy huvudtitlar (1975/1980/1985)
   'Socialdepartementet': 'Ministry of Health and Social Affairs',
   'Utbildningsdepartementet': 'Ministry of Education',
@@ -98,5 +110,15 @@ export function formatMkrLocalized(mkr: number, lang: Lang): string {
     return `${Math.round(mkr).toLocaleString('en-US')} m SEK`;
   }
   if (Math.abs(mkr) >= 1000) return `${(mkr / 1000).toFixed(1)} mdr kr`;
+  return `${Math.round(mkr).toLocaleString('sv-SE')} mkr`;
+}
+
+/** Compact format for tight mobile layouts — drops trailing unit word. */
+export function formatMkrCompact(mkr: number, lang: Lang): string {
+  if (lang === 'en') {
+    if (Math.abs(mkr) >= 1000) return `${(mkr / 1000).toFixed(1)} bn`;
+    return `${Math.round(mkr).toLocaleString('en-US')} m`;
+  }
+  if (Math.abs(mkr) >= 1000) return `${(mkr / 1000).toFixed(1)} mdr`;
   return `${Math.round(mkr).toLocaleString('sv-SE')} mkr`;
 }

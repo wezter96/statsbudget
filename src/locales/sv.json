@@ -2,13 +2,13 @@
   "site": {
     "title": "Statsbudget",
     "tagline": "Så används dina skattepengar",
-    "description": "En oberoende visualisering av den svenska statsbudgeten. Baserad på officiell data från ESV, SCB och Riksdagen."
+    "description": "En oberoende visualisering av Sveriges offentliga utgifter och statsbudget. Baserad på officiell data från Eurostat, ESV, SCB och Riksdagen."
   },
   "hero": {
     "heading": "Så används dina skattepengar",
-    "subheading": "Följ den svenska statsbudgeten från 1975 till idag. Förstå vart pengarna går.",
+    "subheading": "Se hela offentliga sektorn i översikt och fördjupa dig i statsbudgeten från 1975 till idag.",
     "lastUpdated": "Senast uppdaterad: {{date}}",
-    "sources": "Källor: ESV · SCB · Riksdagen"
+    "sources": "Källor: Eurostat · ESV · SCB · Riksdagen"
   },
   "explorer": {
     "year": "År",
@@ -28,8 +28,15 @@
     "share": "Andel",
     "change": "Förändring",
     "totalBudget": "Total budget",
+    "totalPublicBudget": "Totala offentliga utgifter",
+    "totalStateBudget": "Total statsbudget",
     "distribution": "Fördelning",
     "overTime": "Utveckling över tid",
+    "scope": "Omfång",
+    "scopePublic": "Hela offentliga sektorn",
+    "scopeState": "Statsbudgeten",
+    "scopeNotePublic": "Konsoliderad översiktsvy av offentliga utgifter för hela Sverige enligt COFOG. Det här är utgiftssidan, inte bara skatteintäkter. Klicka på en funktion i diagrammet för att se hur den fördelas mellan statlig sektor, kommuner och regioner samt socialförsäkringar.",
+    "scopeNoteState": "Detaljvy av statsbudgeten från ESV. Klicka på ett utgiftsområde för att se anslag. För hela offentliga sektorn, byt till Hela offentliga sektorn.",
     "politicsHeading": "Politik och ekonomi",
     "budgetBalance": "Budgetbalans under olika regeringar",
     "budgetBalanceSource": "Källa: Ekonomifakta / ESV — statens budgetsaldo, mdr kr.",
@@ -42,11 +49,22 @@
     "budgetProposition": "Budgetproposition",
     "financeCommittee": "Finansutskottet",
     "table": {
-      "area": "Utgiftsområde"
+      "area": "Utgiftsområde",
+      "areaShort": "Område",
+      "function": "Funktion"
     },
+    "amountShort": "Belopp",
+    "shareShort": "Andel",
+    "changeShort": "Ändr.",
     "compare": "Jämför",
     "compareWith": "Jämför med",
     "compareYear": "Jämförelseår",
+    "publicBreakdown": {
+      "heading": "Delsektorer inom {{area}}",
+      "loading": "Laddar delsektorer…",
+      "empty": "Ingen delsektorsdata att visa.",
+      "note": "Beloppen visar bruttoutgifter enligt Eurostat och är därför inte direkt jämförbara med statsbudgetens detaljdata."
+    },
     "anslag": {
       "heading": "Anslag inom {{area}}",
       "loading": "Laddar anslag…",
@@ -65,7 +83,7 @@
     "heading": "Om Statsbudget",
     "project": {
       "title": "Om projektet",
-      "text": "Statsbudget är ett medborgarverktyg som gör den svenska statsbudgeten tillgänglig och begriplig för alla. Projektet drivs ideellt med målet att stärka den demokratiska transparensen."
+      "text": "Statsbudget är ett medborgarverktyg som gör både den svenska statsbudgeten och den bredare offentliga sektorn mer tillgänglig och begriplig. Projektet drivs ideellt med målet att stärka den demokratiska transparensen."
     },
     "sources": {
       "title": "Datakällor",
@@ -125,7 +143,7 @@
     "comparison": {
       "heading": "Vem gynnas? En jämförelse",
       "intro": "Många skatteutgifter kan användas av alla, men de ger oproportionerligt mycket till den som tjänar bra eller äger bostad och kapital — ju högre inkomst och dyrare bostad, desto större skattelättnad i kronor. Här jämför vi dessa med behovsprövade bidrag som oproportionerligt gynnar låginkomsttagare och fattiga, samt kostnader för migration. Klicka på en rad för att läsa mer.",
-      "ratio": "För varje krona i behovsprövade bidrag som oproportionerligt gynnar låginkomsttagare och fattiga går ungefär <strong>3 kronor</strong> i skattesubventioner som oproportionerligt gynnar höginkomsttagare och förmögna.",
+      "ratio": "För varje krona i behovsprövade bidrag som oproportionerligt gynnar låginkomsttagare och fattiga går ungefär <strong>3,5 kronor</strong> i skattesubventioner som oproportionerligt gynnar höginkomsttagare och förmögna.",
       "source": "Källa",
       "post": "Post",
       "noteTitle": "Notera:",
@@ -154,6 +172,10 @@
           "name": "Avkastning eget hem",
           "detail": "Att bo i eget hus ger en skattefri \"avkastning\" (man slipper betala hyra till sig själv). Denna förmån beskattas inte alls sedan 2007, trots att den i nationalräkenskaperna räknas som inkomst. Dyrare hus = större osynlig subvention."
         },
+        "fastighetsskatt": {
+          "name": "Avskaffad fastighetsskatt",
+          "detail": "Den statliga fastighetsskatten ersattes av en låg kommunal avgift med tak. Ju dyrare bostad och högre taxeringsvärde, desto större implicit skatterabatt jämfört med det gamla systemet."
+        },
         "tolvregler": {
           "name": "Kapitalvinst kvalificerade andelar (3:12)",
           "detail": "Fåmansföretagare kan genom 3:12-reglerna ta ut vinst beskattad med 20 % kapitalskatt istället för som lön med marginalskatt upp till ~55 %. Riksrevisionen har konstaterat att reglerna är generösa och främst gynnar höginkomsttagare."
@@ -170,6 +192,10 @@
           "name": "Kapitalvinst vid bostadsförsäljning",
           "detail": "Vinst vid försäljning av privatbostad beskattas med 22 % (genom kvotering till 22/30) istället för normalskattesatsen 30 % för kapital. Större bostadsvinst = mer skattesubvention i absoluta tal."
         },
+        "formogenhetsskatt": {
+          "name": "Avskaffad förmögenhetsskatt",
+          "detail": "Förmögenhetsskatten avskaffades 2007. Vinsten går nästan helt till hushåll med stora finansiella tillgångar och höga nettoförmögenheter."
+        },
         "avkastningBrf": {
           "name": "Avkastning bostadsrättsfastighet",
           "detail": "Samma princip som eget hem — bostadsrättsägare beskattas inte för den implicita avkastningen av sitt boende. Dyrare BRF = större skattefri förmån."
@@ -178,6 +204,10 @@
           "name": "Nedsatt förmånsvärde miljöbilar",
           "detail": "Förmånsbilar beskattas med reducerat förmånsvärde om de klassas som miljöanpassade. Förmånsbilar är vanligast bland tjänstemän med hög lön, och de dyraste elbilarna (Tesla Model S/X, BMW iX) ger störst nedsättning."
         },
+        "arvsskatt": {
+          "name": "Avskaffad arvsskatt",
+          "detail": "Arvsskatten avskaffades 2004. Fördelen uppstår främst vid större arv och kapitalöverföringar inom redan förmögna hushåll."
+        },
         "uppskov": {
           "name": "Uppskov kapitalvinstskatt bostad",
           "detail": "Vid bostadsbyte kan man skjuta upp skatten på vinsten. Fungerar i praktiken som ett räntefritt lån från staten — mest värdefullt vid stora vinster (miljonbelopp) i storstadsområden."
@@ -185,6 +215,10 @@
         "onoterade": {
           "name": "Kapitalvinst onoterade andelar",
           "detail": "Kapitalvinst på icke-kvalificerade andelar i onoterade bolag beskattas med 25 % istället för 30 %. Relevant enbart för de som har kapital att investera i onoterade bolag."
+        },
+        "expertskatt": {
+          "name": "Expertskatt",
+          "detail": "Utländska experter, forskare och nyckelpersoner får 25 % av inkomsten skattefri i upp till sju år. Det gäller höga inkomster och kvalificerade roller."
         },
         "ekonomisktBistand": {
           "name": "Ekonomiskt bistånd (socialbidrag)",
@@ -201,6 +235,10 @@
         "bostadsbidrag": {
           "name": "Bostadsbidrag",
           "detail": "Inkomstprövat bidrag till barnfamiljer med låg inkomst och unga (18–28 år) utan barn. Beräknas utifrån inkomst, bostadskostnad och antal barn. Fasas ut helt vid medelhög inkomst."
+        },
+        "sjukAktivitet": {
+          "name": "Skattereduktion för sjuk- och aktivitetsersättning",
+          "detail": "Skattereduktionen sänker skatten för personer med sjuk- eller aktivitetsersättning. Den är tydligt riktad till hushåll med låg eller begränsad arbetsinkomst och nedsatt arbetsförmåga."
         },
         "etablering": {
           "name": "Etableringsersättning (nyanlända)",
@@ -254,7 +292,7 @@
     "caveat": "Beloppen avser statsbudgetens inkomstsida. Kommunalskatt redovisas delvis separat. Vissa år är prognoser, inte utfall."
   },
   "footer": {
-    "tagline": "En oberoende visualisering av den svenska statsbudgeten. Baserad på officiell data från ESV, SCB och Riksdagen.",
+    "tagline": "En oberoende visualisering av Sveriges offentliga utgifter och statsbudget. Baserad på officiell data från Eurostat, ESV, SCB och Riksdagen.",
     "copyright": "© {{year}} statsbudget.se — Data från ESV, SCB och Riksdagen",
     "disclaimer": "Webbplatsen tillhandahålls i befintligt skick. Inget ansvar tas för informationens riktighet, fullständighet eller aktualitet. Officiella uppgifter hos ESV, SCB och Riksdagen gäller.",
     "about": "Om projektet",

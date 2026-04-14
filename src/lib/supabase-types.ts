@@ -130,5 +130,37 @@ export interface FactIncomeOutcomeQuarterly {
   source_status: string;
 }
 
+export interface DimPublicFunction {
+  public_function_id: number;
+  code: string;
+  name_sv: string;
+  name_en: string | null;
+  sort_order: number;
+}
+
+export interface FactPublicBudget {
+  fact_public_budget_id: number;
+  year_id: number;
+  public_function_id: number;
+  amount_mkr: number;
+}
+
+export interface DimPublicSubsector {
+  public_subsector_id: number;
+  code: string;
+  name_sv: string;
+  name_en: string | null;
+  sort_order: number;
+}
+
+export interface FactPublicSubsectorBudget {
+  fact_public_subsector_budget_id: number;
+  year_id: number;
+  public_subsector_id: number;
+  public_function_id: number;
+  amount_mkr: number;
+}
+
 export type DisplayMode = 'total_pct' | 'real' | 'nominal' | 'gdp_pct';
+export type BudgetScope = 'public_sector' | 'state_budget';
 export type DrillLevel = 'area' | 'anslag';
