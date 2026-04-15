@@ -186,17 +186,17 @@ const BudgetPieTable = ({
                   <col className="w-7 sm:w-10" />
                   <col />
                   <col className="w-[5.5rem] sm:w-40" />
-                  <col className="w-11 sm:w-20" />
+                  <col className="w-14 sm:w-20" />
                   {allowBreakdown && <col className="w-0 sm:w-8" />}
                 </>
               ) : (
                 <>
-                  <col style={{ width: '5%' }} />
-                  <col style={{ width: '35%' }} />
-                  <col style={{ width: '20%' }} />
-                  <col style={{ width: '20%' }} />
-                  <col style={{ width: '15%' }} />
-                  {allowBreakdown && <col style={{ width: '5%' }} className="hidden sm:table-column" />}
+                  <col className="w-7 sm:w-10" />
+                  <col />
+                  <col className="w-[4.5rem] sm:w-24" />
+                  <col className="w-[4.5rem] sm:w-24" />
+                  <col className="w-14 sm:w-20" />
+                  {allowBreakdown && <col className="w-0 sm:w-8" />}
                 </>
               )}
             </colgroup>
@@ -232,7 +232,7 @@ const BudgetPieTable = ({
                   </th>
                 )}
                 {allowBreakdown && (
-                  <th className={cn('px-1 sm:px-2 py-2 hidden sm:table-cell', compareActive && 'sm:w-[4%]')} aria-hidden="true" />
+                  <th className="px-1 sm:px-2 py-2 hidden sm:table-cell" aria-hidden="true" />
                 )}
               </tr>
             </thead>
